@@ -16,5 +16,6 @@ If you don't know how to do that
 
 ## To run the application development server.
 1. Navigate to the FOE_Backend folder from inside your virtual environment.
-2. run `flask run` in your terminal.
-3. This will start the development server. Any time you make changes to the server you will need to restart it for it to serve the most up to date content.
+2. run 
+3. `flask run` in your terminal.
+4. This will start the development server. Any time you make changes to the server you will need to restart it for it to serve the most up to date content.
