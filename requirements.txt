@@ -1,0 +1,4 @@
+# run pip install -r requirements.txt from FOE_Backend whith your venv active to install requirements
+
+flask
+flask_cors
