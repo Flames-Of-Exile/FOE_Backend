@@ -4,6 +4,14 @@ FROM python:3.8.0-alpine
 # set work directory
 WORKDIR /usr/src/app
 
+# install psycopg2 dependencies
+RUN apk update \
+    && apk add \
+    gcc \
+    musl-dev \
+    postgresql-dev \
+    python3-dev
+    
 #install operating dependencies
 RUN apk update \
     && apk add --no-cache \

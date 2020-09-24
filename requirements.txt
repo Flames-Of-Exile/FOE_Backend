@@ -2,3 +2,8 @@
 
 flask
 flask_cors
+Psycopg2==2.8.4
+Flask-SqlAlchemy==2.4.1
+Flask-Migrate==2.5.2
+Flask-Script==2.0.6
+SQLAlchemy-serializer==1.3.4.2
