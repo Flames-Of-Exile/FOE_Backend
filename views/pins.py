@@ -1,6 +1,8 @@
 from flask import current_app, Blueprint, jsonify, request, Response
+from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from models import db, Pin
+from permissions import is_administrator, is_member
 
 pins = Blueprint('pins', __name__, url_prefix='/api/pins')
 
@@ -15,9 +17,11 @@ def CreatePin():
         newPin = Pin(json['position_x'], json['position_y'], json['symbol'], json['world']['id'])
         db.session.add(newPin)
         db.session.commit()
-        return Response("success", status=201, mimetype='application/json')
+        data = jsonify(newPin.to_dict())
+        data.status_code = 201
+        return data
     except:
-        return Response("error", status=400, mimetype='application/json')
+        return Response('error creating record', status=400)
 
 @pins.route('/<id>', methods=['GET'])
 def RetrievePin(id=0):
@@ -35,4 +39,4 @@ def UpdatePin(id=0):
         db.session.commit()
         return jsonify(pin.to_dict())
     except:
-        return Response('error', status=400, mimetype='application/json')
+        return Response('error updating record', status=400)
