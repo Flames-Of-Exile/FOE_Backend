@@ -11,6 +11,7 @@ echo "PostgreSQL started"
 python manage.py db init
 python manage.py db migrate
 python manage.py db upgrade
+python manage.py create_admin
 flask run --host=0.0.0.0
 
 exec "$@"

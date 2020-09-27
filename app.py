@@ -1,11 +1,13 @@
 import os
 
 from flask import Flask
+from flask_jwt_extended import JWTManager
 
 def create_app():
     app = Flask(__name__)
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
+    app.config['SECRET_KEY'] = "SUPER-SECRET"
     
     from models import db
     db.init_app(app)
@@ -20,6 +22,8 @@ def create_app():
     app.register_blueprint(pins)
     app.register_blueprint(users)
     app.register_blueprint(worlds)
+
+    jwt = JWTManager(app)
 
     return app
 
