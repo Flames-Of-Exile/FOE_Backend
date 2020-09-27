@@ -20,7 +20,10 @@ def CreateUser():
         newUser = User(json['username'], hashlib.md5(json['password'].encode()).hexdigest(), json['email'])
         db.session.add(newUser)
         db.session.commit()
-        data = jsonify(newUser.to_dict())
+        data = {}
+        data['user'] = newUser.to_dict()
+        data['token'] = create_access_token(identity=newUser.to_dict())
+        data = jsonify(data)
         data.status_code = 201
         return data
     except:
@@ -34,7 +37,7 @@ def Login():
         if (user.password == hashlib.md5(json['password'].encode()).hexdigest()):
             data = {}
             data['user'] = user.to_dict() 
-            data['token'] = create_access_token(identity=data)
+            data['token'] = create_access_token(identity=user.to_dict())
             return jsonify(data)
         else:
             return Response('invalid username/password', status=400)
