@@ -50,6 +50,8 @@ class World(db.Model, SerializerMixin):
     image = db.Column(db.String(), nullable=False)
     campaign_id = db.Column(db.Integer, db.ForeignKey('campaigns.id'), nullable=False)
 
+    serialize_rules = ('-campaign_id',)
+
     def __init__(self, name, image, campaign_id):
         self.name = name
         self.image = image
@@ -83,16 +85,18 @@ class Edit(db.Model, SerializerMixin):
     __tablename__ = "edits"
 
     id = db.Column(db.Integer, primary_key=True)
-    details = db.Column(db.String(), default=datetime.datetime.utcnow)
+    details = db.Column(db.String())
     date_time = db.Column(db.DateTime(), nullable=False)
     pin_id = db.Column(db.Integer, db.ForeignKey('pins.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
-    def __init__(self, details, date_time, pin_id, user_id):
+    serialize_rules = ('-pin_id', '-user_id')
+
+    def __init__(self, details, pin_id, user_id):
         self.details = details
-        self.date_time = date_time
         self.pin_id = pin_id
         self.user_id = user_id
+        self.date_time = datetime.datetime.utcnow()
 
     def __repr__(self):
         return f'{self.id}: {self.details} - {self.datetime}'
