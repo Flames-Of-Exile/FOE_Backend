@@ -1,5 +1,5 @@
 from flask import current_app, Blueprint, jsonify, request, Response
-from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask_jwt_extended import jwt_required
 
 from models import db, Edit
 from permissions import is_administrator, is_member
