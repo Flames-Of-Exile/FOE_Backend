@@ -32,7 +32,8 @@ def Login():
     try:
         user = User.query.filter_by(username=json['username']).first()
         if (user.password == hashlib.md5(json['password'].encode()).hexdigest()):
-            data = user.to_dict()
+            data = {}
+            data['user'] = user.to_dict() 
             data['token'] = create_access_token(identity=data)
             return jsonify(data)
         else:
