@@ -1,6 +1,8 @@
 from flask import current_app, Blueprint, jsonify, request, Response
+from werkzeug.utils import secure_filename
 
 from models import db, World
+from upload import allowed_file
 
 worlds = Blueprint('worlds', __name__, url_prefix='/api/worlds')
 
@@ -10,9 +12,14 @@ def ListWorlds():
 
 @worlds.route('', methods=['POST'])
 def CreateWorld():
-    json = request.json
+    if 'file' not in request.files:
+        return Response('no file found', status=400)
+    file = request.files['file']
+    if not allowed_file(file.filename):
+        return Response('invalid file type', status=400)
     try:
-        newWorld = World(json['name'], json['image'], json['campaign']['id'])
+        newWorld = World(request.form['name'], f'/mediafiles/{secure_filename(file.filename)}', request.form['campaign_id'])
+        file.save(f'/usr/src/app{newWorld.image}')
         db.session.add(newWorld)
         db.session.commit()
         return Response("success", status=201, mimetype='application/json')
@@ -26,11 +33,16 @@ def RetrieveWorld(id=0):
 @worlds.route('/<id>', methods=['PATCH'])
 def UpdateWorld(id=0):
     world = World.query.get_or_404(id)
+    if 'file' not in request.files:
+        return Response('no file found', status=400)
+    file = request.files['file']
+    if not allowed_file(file.filename):
+        return Response('invalid file type', status=400)
     try:
-        json = request.json
-        world.name = json['name']
-        world.image = json['image']
-        world.campaign_id = json['campaign']['id']
+        world.name = request.form['name']
+        world.image = f'/mediafiles/{secure_filename(file.filename)}'
+        world.campaign_id = request.form['campaign_id']
+        file.save(f'/usr/src/app{world.image}')
         db.session.commit()
         return jsonify(world.to_dict())
     except:

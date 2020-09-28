@@ -1,6 +1,8 @@
 from flask import current_app, Blueprint, jsonify, request, Response
+from werkzeug.utils import secure_filename
 
 from models import db, Campaign
+from upload import allowed_file
 
 campaigns = Blueprint('campaigns', __name__, url_prefix='/api/campaigns')
 
@@ -10,9 +12,14 @@ def ListCampaigns():
 
 @campaigns.route('', methods=['POST'])
 def CreateCampaign():
-    json = request.json
+    if 'file' not in request.files:
+        return Response('no file found', status=400)
+    file = request.files['file']
+    if not allowed_file(file.filename):
+        return Response('invalid file type', status=400)
     try:
-        newCampaign = Campaign(json['name'], json['image'])
+        newCampaign = Campaign(request.form['name'], f'/mediafiles/{secure_filename(file.filename)}')
+        file.save(f'/usr/src/app{newCampaign.image}')
         db.session.add(newCampaign)
         db.session.commit()
         return Response("success", status=201, mimetype='application/json')
@@ -26,10 +33,15 @@ def RetrieveCampaign(id=0):
 @campaigns.route('/<id>', methods=['PATCH'])
 def UpdateCampaign(id=0):
     campaign = Campaign.query.get_or_404(id)
+    if 'file' not in request.files:
+        return Response('no file found', status=400)
+    file = request.files['file']
+    if not allowed_file(file.filename):
+        return Response('invalid file type', status=400)
     try:
-        json = request.json
-        campaign.name = json['name']
-        campaign.image = json['image']
+        campaign.name = request.form['name']
+        campaign.image = f'/mediafiles/{secure_filename(file.filename)}'
+        file.save(f'/usr/src/app{campaign.image}')
         db.session.commit()
         return jsonify(campaign.to_dict())
     except:
