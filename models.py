@@ -1,4 +1,5 @@
 import datetime
+import enum
 
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_serializer import SerializerMixin
@@ -6,21 +7,31 @@ from sqlalchemy.dialects.postgresql import JSON
 
 db = SQLAlchemy()
 
+
 class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
+
+    class Role(enum.Enum):
+        GUEST = 'guest'
+        MEMBER = 'member'
+        ADMIN = 'admin'
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(), nullable=False, unique=True)
     password = db.Column(db.String(), nullable=False)
     email = db.Column(db.String(), nullable=False, unique=True)
+    is_active = db.Column(db.Boolean(), nullable=False)
+    role = db.Column(db.Enum(Role), nullable=False)
     edits = db.relationship('Edit', backref='user', lazy=True)
 
-    serialize_only = ('id', 'username', 'email', 'edits.id')
+    serialize_only = ('id', 'username', 'email', 'is_active', 'role', 'edits.id')
 
-    def __init__(self, username, password, email):
+    def __init__(self, username, password, email, role=Role.GUEST):
         self.username = username
         self.password = password
         self.email = email
+        self.is_active = True
+        self.role = role
 
     def __repr__(self):
         return f'{self.id}: {self.username}'
