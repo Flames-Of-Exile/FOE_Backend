@@ -16,15 +16,24 @@ class User(db.Model, SerializerMixin):
         MEMBER = 'member'
         ADMIN = 'admin'
 
+    class Theme(enum.Enum):
+        DEFAULT = 'default'
+        BLUE_RASPBERRY = 'blue_raspberry'
+        SEABREEZE = 'seabreeze'
+        CARTOGRAPHY = 'cartography'
+        PUMPKIN_SPICE = 'pumpkin_spice'
+        RED = 'red'
+
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(), nullable=False, unique=True)
     password = db.Column(db.String(), nullable=False)
     email = db.Column(db.String(), nullable=False, unique=True)
     is_active = db.Column(db.Boolean(), nullable=False)
     role = db.Column(db.Enum(Role), nullable=False)
+    theme = db.Column(db.Enum(Theme), nullable=False)
     edits = db.relationship('Edit', backref='user', lazy=True)
 
-    serialize_only = ('id', 'username', 'email', 'is_active', 'role', 'edits.id')
+    serialize_only = ('id', 'username', 'email', 'is_active', 'role', 'theme', 'edits.id')
 
     def __init__(self, username, password, email, role=Role.GUEST):
         self.username = username
@@ -32,6 +41,7 @@ class User(db.Model, SerializerMixin):
         self.email = email
         self.is_active = True
         self.role = role
+        self.theme = User.Theme.DEFAULT
 
     def __repr__(self):
         return f'{self.id}: {self.username}'
@@ -79,7 +89,7 @@ class Pin(db.Model, SerializerMixin):
     position_y = db.Column(db.Integer, nullable=False)
     symbol = db.Column(db.String(), nullable=False)
     world_id = db.Column(db.Integer, db.ForeignKey('worlds.id'), nullable=False)
-    edits = db.relationship('Edit', backref='pin', lazy=True)
+    edits = db.relationship('Edit', backref='pin', lazy=True, cascade='all, delete')
 
     serialize_rules = ('-edits.pin',)
 
