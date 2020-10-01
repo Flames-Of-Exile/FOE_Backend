@@ -1,4 +1,5 @@
 from flask import current_app, Blueprint, jsonify, request, Response
+from flask_jwt_extended import jwt_required
 from werkzeug.utils import secure_filename
 
 from models import db, World

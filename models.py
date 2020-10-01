@@ -81,7 +81,7 @@ class Pin(db.Model, SerializerMixin):
     world_id = db.Column(db.Integer, db.ForeignKey('worlds.id'), nullable=False)
     edits = db.relationship('Edit', backref='pin', lazy=True)
 
-    serialize_only = ('id', 'position_x', 'position_y', 'symbol', 'world_id', 'edits.id')
+    serialize_rules = ('-edits.pin',)
 
     def __init__(self, position_x, position_y, symbol, world_id):
         self.position_x = position_x
