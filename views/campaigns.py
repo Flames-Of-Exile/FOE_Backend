@@ -71,6 +71,8 @@ def UpdateCampaign(id=0):
         return Response('error updating record', status=400)
 
 @campaigns.route('/latest', methods=['GET'])
+@jwt_required
+@is_member
 def GetLatest():
     campaign = Campaign.query.filter_by(is_default=True).first()
     if campaign is not None:
