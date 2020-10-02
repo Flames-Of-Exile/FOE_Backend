@@ -41,14 +41,16 @@ class Campaign(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(), nullable=False)
-    image = db.Column(db.String(), nullable=False)
+    image = db.Column(db.String(), nullable=False, unique=True)
     worlds = db.relationship('World', backref='campaign', lazy=True)
+    is_default = db.Column(db.Boolean())
 
-    serialize_only = ('id', 'name', 'image', 'worlds.id')
+    serialize_only = ('id', 'name', 'image', 'is_default', 'worlds.id')
 
-    def __init__(self, name, image):
+    def __init__(self, name, image, is_default=False):
         self.name = name
         self.image = image
+        self.is_default = is_default
 
     def __repr__(self):
         return f'{self.id}: {self.name}'
@@ -58,7 +60,7 @@ class World(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(), nullable=False)
-    image = db.Column(db.String(), nullable=False)
+    image = db.Column(db.String(), nullable=False, unique=True)
     campaign_id = db.Column(db.Integer, db.ForeignKey('campaigns.id'), nullable=False)
 
     serialize_rules = ('-campaign_id',)
