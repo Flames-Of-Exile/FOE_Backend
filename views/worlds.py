@@ -26,9 +26,9 @@ def CreateWorld():
         return Response('invalid file type', status=400)
     try:
         newWorld = World(request.form['name'], f'/mediafiles/{secure_filename(file.filename)}', request.form['campaign_id'])
-        file.save(f'/usr/src/app{newWorld.image}')
         db.session.add(newWorld)
         db.session.commit()
+        file.save(f'/usr/src/app{newWorld.image}')
         data = jsonify(newWorld.to_dict())
         data.status_code = 201
         return data
@@ -55,8 +55,8 @@ def UpdateWorld(id=0):
         world.name = request.form['name']
         world.image = f'/mediafiles/{secure_filename(file.filename)}'
         world.campaign_id = request.form['campaign_id']
-        file.save(f'/usr/src/app{world.image}')
         db.session.commit()
+        file.save(f'/usr/src/app{world.image}')
         return jsonify(world.to_dict())
     except:
         return Response('error updating record', status=400)

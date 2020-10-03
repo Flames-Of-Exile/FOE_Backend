@@ -26,9 +26,14 @@ def CreateCampaign():
         return Response('invalid file type', status=400)
     try:
         newCampaign = Campaign(request.form['name'], f'/mediafiles/{secure_filename(file.filename)}')
-        file.save(f'/usr/src/app{newCampaign.image}')
+        if (request.form['is_default'] == "true"):
+            old_default = Campaign.query.filter_by(is_default=True).all()
+            for camp in old_default:
+                camp.is_default=False
+            newCampaign.is_default = True
         db.session.add(newCampaign)
         db.session.commit()
+        file.save(f'/usr/src/app{newCampaign.image}')
         data = jsonify(newCampaign.to_dict())
         data.status_code = 201
         return data
@@ -53,9 +58,23 @@ def UpdateCampaign(id=0):
         return Response('invalid file type', status=400)
     try:
         campaign.name = request.form['name']
+        if (request.form['is_default'] == "true"):
+            old_default = Campaign.query.filter_by(is_default=True).all()
+            for camp in old_default:
+                camp.is_default=False
+            campaign.is_default = True
         campaign.image = f'/mediafiles/{secure_filename(file.filename)}'
-        file.save(f'/usr/src/app{campaign.image}')
         db.session.commit()
+        file.save(f'/usr/src/app{campaign.image}')
         return jsonify(campaign.to_dict())
     except:
         return Response('error updating record', status=400)
+
+@campaigns.route('/latest', methods=['GET'])
+@jwt_required
+@is_member
+def GetLatest():
+    campaign = Campaign.query.filter_by(is_default=True).first()
+    if campaign is not None:
+        return jsonify(campaign.to_dict())
+    return Response('no default campaign found', status=404)
