@@ -1,5 +1,6 @@
 from flask import current_app, Blueprint, jsonify, request, Response
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import get_jwt_identity, jwt_required
+from sqlalchemy.exc import IntegrityError
 
 from models import db, Edit
 from permissions import is_administrator, is_member
@@ -18,14 +19,18 @@ def ListEdits():
 def CreateEdit():
     json = request.json
     try:
-        newEdit = Edit(json['details'], json['pin']['id'], json['user']['id'])
+        newEdit = Edit(
+            json['details'] or None, 
+            json['pin_id'] or None, 
+            get_jwt_identity()['id']
+            )
         db.session.add(newEdit)
         db.session.commit()
         data = jsonify(newEdit.to_dict())
         data.status_code = 201
         return data
-    except:
-        return Response('error creating record', status=400)
+    except IntegrityError as error:
+        return Response(error.args[0], status=400)
 
 @edits.route('/<id>', methods=['GET'])
 @jwt_required

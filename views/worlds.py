@@ -1,5 +1,6 @@
 from flask import current_app, Blueprint, jsonify, request, Response
 from flask_jwt_extended import jwt_required
+from sqlalchemy.exc import IntegrityError
 from werkzeug.utils import secure_filename
 
 from models import db, World
@@ -25,15 +26,19 @@ def CreateWorld():
     if not allowed_file(file.filename):
         return Response('invalid file type', status=400)
     try:
-        newWorld = World(request.form['name'], f'/mediafiles/{secure_filename(file.filename)}', request.form['campaign_id'])
+        newWorld = World(
+            request.form['name'] or None, 
+            f'/mediafiles/{secure_filename(file.filename)}', 
+            request.form['campaign_id'] or None
+            )
         db.session.add(newWorld)
         db.session.commit()
         file.save(f'/usr/src/app{newWorld.image}')
         data = jsonify(newWorld.to_dict())
         data.status_code = 201
         return data
-    except:
-        return Response('error creating record', status=400)
+    except IntegrityError as error:
+        return Response(error.args[0], status=400)
 
 @worlds.route('/<id>', methods=['GET'])
 @jwt_required
@@ -52,11 +57,11 @@ def UpdateWorld(id=0):
     if not allowed_file(file.filename):
         return Response('invalid file type', status=400)
     try:
-        world.name = request.form['name']
+        world.name = request.form['name'] or None
         world.image = f'/mediafiles/{secure_filename(file.filename)}'
-        world.campaign_id = request.form['campaign_id']
+        world.campaign_id = request.form['campaign_id'] or None
         db.session.commit()
         file.save(f'/usr/src/app{world.image}')
         return jsonify(world.to_dict())
-    except:
-        return Response('error updating record', status=400)
+    except IntegrityError as error:
+        return Response(error.args[0], status=400)

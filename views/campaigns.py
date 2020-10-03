@@ -1,5 +1,6 @@
 from flask import current_app, Blueprint, jsonify, request, Response
 from flask_jwt_extended import jwt_required
+from sqlalchemy.exc import IntegrityError
 from werkzeug.utils import secure_filename
 
 from models import db, Campaign
@@ -25,7 +26,7 @@ def CreateCampaign():
     if not allowed_file(file.filename):
         return Response('invalid file type', status=400)
     try:
-        newCampaign = Campaign(request.form['name'], f'/mediafiles/{secure_filename(file.filename)}')
+        newCampaign = Campaign(request.form['name'] or None, f'/mediafiles/{secure_filename(file.filename)}')
         if (request.form['is_default'] == "true"):
             old_default = Campaign.query.filter_by(is_default=True).all()
             for camp in old_default:
@@ -37,8 +38,8 @@ def CreateCampaign():
         data = jsonify(newCampaign.to_dict())
         data.status_code = 201
         return data
-    except:
-        return Response('error creating record', status=400)
+    except IntegrityError as error:
+        return Response(error.args[0], status=400)
 
 @campaigns.route('/<id>', methods=['GET'])
 @jwt_required
@@ -57,7 +58,7 @@ def UpdateCampaign(id=0):
     if not allowed_file(file.filename):
         return Response('invalid file type', status=400)
     try:
-        campaign.name = request.form['name']
+        campaign.name = request.form['name'] or None
         if (request.form['is_default'] == "true"):
             old_default = Campaign.query.filter_by(is_default=True).all()
             for camp in old_default:
@@ -67,8 +68,8 @@ def UpdateCampaign(id=0):
         db.session.commit()
         file.save(f'/usr/src/app{campaign.image}')
         return jsonify(campaign.to_dict())
-    except:
-        return Response('error updating record', status=400)
+    except IntegrityError as error:
+        return Response(error.args[0], status=400)
 
 @campaigns.route('/latest', methods=['GET'])
 @jwt_required
