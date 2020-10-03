@@ -58,3 +58,12 @@ def UpdatePin(id=0):
         return jsonify(pin.to_dict())
     except:
         return Response('error updating record', status=400)
+
+@pins.route('/<id>', methods=['DELETE'])
+@jwt_required
+@is_administrator
+def DeletePin(id=0):
+    pin = Pin.query.get_or_404(id)
+    db.session.delete(pin)
+    db.session.commit()
+    return Response('pin deleted', status=200)

@@ -54,12 +54,16 @@ def RetrieveUser(id=0):
 @jwt_required
 def UpdateUser(id=0):
     user = User.query.get_or_404(id)
-    if (get_jwt_identity()['id'] != id):
+    print(type(get_jwt_identity()['id']))
+    print(type(id))
+    if (get_jwt_identity()['id'] != int(id)):
         return Response('can only update your own account', status=403)
     try:
         json = request.json
-        user.password = hashlib.md5(json['password'].encode()).hexdigest()
+        if 'password' in json.keys():
+            user.password = hashlib.md5(json['password'].encode()).hexdigest()
         user.email = json['email']
+        user.theme = User.Theme(json['theme'])
         db.session.commit()
         return jsonify(user.to_dict())
     except:
