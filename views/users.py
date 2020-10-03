@@ -83,7 +83,7 @@ def AdminUpdateUser(id=0):
         json = request.json
         user.password = hashlib.md5(json['password'].encode()).hexdigest() or None
         user.email = json['email'] or None
-        user.is_active = json['is_active'] or None
+        user.is_active = json['is_active']
         user.role = User.Role(json['role']) or None
         db.session.commit()
         return jsonify(user.to_dict())
