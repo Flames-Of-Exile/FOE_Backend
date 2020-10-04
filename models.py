@@ -55,7 +55,7 @@ class Campaign(db.Model, SerializerMixin):
     worlds = db.relationship('World', backref='campaign', lazy=True)
     is_default = db.Column(db.Boolean())
 
-    serialize_only = ('id', 'name', 'image', 'is_default', 'worlds.id')
+    serialize_only = ('id', 'name', 'image', 'is_default', 'worlds.id', 'worlds.name')
 
     def __init__(self, name, image, is_default=False):
         self.name = name
@@ -72,8 +72,9 @@ class World(db.Model, SerializerMixin):
     name = db.Column(db.String(), nullable=False)
     image = db.Column(db.String(), nullable=False, unique=True)
     campaign_id = db.Column(db.Integer, db.ForeignKey('campaigns.id'), nullable=False)
+    pins = db.relationship('Pin', backref='world', lazy=True)
 
-    serialize_rules = ('-campaign_id',)
+    serialize_rules = ('-campaign_id', '-pins.world')
 
     def __init__(self, name, image, campaign_id):
         self.name = name
@@ -86,20 +87,46 @@ class World(db.Model, SerializerMixin):
 class Pin(db.Model, SerializerMixin):
     __tablename__ = "pins"
 
+    class Symbol(enum.Enum):
+        STONE = 'stone'
+        STONE_MOTHERLODE = 'stone-motherlode'
+        ORE = 'ore'
+        ORE_MOTHERLODE = 'ore-motherlode'
+        WOOD = 'wood'
+        ANIMAL = 'animal'
+        ANIMAL_BOSS = 'animal-boss'
+        MOB = 'mob'
+        MOB_BOSS = 'mob-boss'
+        WELL = 'well'
+        GRAVE = 'grave'
+        TACTICAL_HOUSE = 'tactical-house'
+        TACTICAL_FIRE = 'tactical-fire'
+        TACTICAL_FISH = 'tactical-fish'
+
     id = db.Column(db.Integer, primary_key=True)
-    position_x = db.Column(db.Integer, nullable=False)
-    position_y = db.Column(db.Integer, nullable=False)
-    symbol = db.Column(db.String(), nullable=False)
+    position_x = db.Column(db.Float, nullable=False)
+    position_y = db.Column(db.Float, nullable=False)
+    symbol = db.Column(db.Enum(Symbol), nullable=False)
+    rank = db.Column(db.Integer)
+    name = db.Column(db.String())
+    amount = db.Column(db.Integer)
+    notes = db.Column(db.String())
+    respawn = db.Column(db.Integer)
     world_id = db.Column(db.Integer, db.ForeignKey('worlds.id'), nullable=False)
     edits = db.relationship('Edit', backref='pin', lazy=True, cascade='all, delete')
 
     serialize_rules = ('-edits.pin',)
 
-    def __init__(self, position_x, position_y, symbol, world_id):
+    def __init__(self, position_x, position_y, symbol, world_id, rank, name, amount, respawn, notes):
         self.position_x = position_x
         self.position_y = position_y
         self.symbol = symbol
         self.world_id = world_id
+        self.rank = rank
+        self.name = name
+        self.amount = amount
+        self.respawn = respawn
+        self.notes = notes
 
     def __repr__(self):
         return f'{self.id}: {self.symbol} - {self.position_x}/{self.position_y}'

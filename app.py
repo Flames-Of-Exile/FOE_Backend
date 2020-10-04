@@ -13,12 +13,10 @@ def create_app():
     db.init_app(app)
     
     from views.campaigns import campaigns
-    from views.edits import edits
     from views.pins import pins
     from views.users import users
     from views.worlds import worlds
     app.register_blueprint(campaigns)
-    app.register_blueprint(edits)
     app.register_blueprint(pins)
     app.register_blueprint(users)
     app.register_blueprint(worlds)

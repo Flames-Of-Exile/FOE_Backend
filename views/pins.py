@@ -22,12 +22,17 @@ def CreatePin():
         newPin = Pin(
             json['position_x'], 
             json['position_y'], 
-            json['symbol'] or None, 
-            json['world_id'] or None
+            Pin.Symbol(json['symbol']), 
+            json['world_id'] or None,
+            json['rank'],
+            json['name'] or None,
+            json['amount'],
+            json['respawn'],
+            json['notes'] or None
             )
         db.session.add(newPin)
         db.session.commit()
-        newEdit = Edit(json['details'], newPin.id, get_jwt_identity()['id'])
+        newEdit = Edit(json['notes'], newPin.id, get_jwt_identity()['id'])
         db.session.add(newEdit)
         db.session.commit()
         data = jsonify(newPin.to_dict())
@@ -50,19 +55,34 @@ def UpdatePin(id=0):
     try:
         json = request.json
         details = ''
-        if (pin.position_x != json['position_x'] or pin.position_y != json['position_y']):
+        if pin.position_x != json['position_x'] or pin.position_y != json['position_y']:
             details += f'Position changed from {pin.position_x}/{pin.position_y} to {json["position_x"]}/{json["position_y"]}\n'
         pin.position_x = json['position_x']
         pin.position_y = json['position_y']
-        if (pin.symbol != json['symbol']):
-            details += f'Symbol changed from {pin.symbol} to {json["symbol"]}\n'
-            pin.symbol = json['symbol']
+        if pin.symbol != json['symbol']:
+            details += f'Symbol changed from {pin.symbol.value} to {json["symbol"]}\n'
+            pin.symbol = Pin.Symbol(json['symbol'])
+        if pin.rank != json['rank']:
+            details += f'Rank changed from {pin.rank} to {json["rank"]}\n'
+            pin.rank = json['rank']
+        if pin.name != json['name']:
+            details += f'Name changed from {pin.name} to {json["name"]}]n'
+            pin.name = json['name']
+        if pin.amount != json['amount']:
+            details += f'Amount changed from {pin.amount} to {json["amount"]}\n'
+            pin.amount = json['amount']
+        if pin.respawn != json['respawn']:
+            details += f'Respawn changed from {pin.respawn} to {json["respawn"]}\n'
+            pin.respawn = json['respawn']
+        if pin.notes != json['notes']:
+            details += f'Notes changed from {pin.notes} to {json["notes"]}\n'
+            pin.notes = json['notes']
         db.session.commit()
         newEdit = Edit(details, pin.id, get_jwt_identity()['id'])
         db.session.add(newEdit)
         db.session.commit()
         return jsonify(pin.to_dict())
-    except IntegrityError as Error:
+    except IntegrityError as error:
         return Response(error.args[0], status=400)
 
 @pins.route('/<id>', methods=['DELETE'])
