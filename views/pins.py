@@ -1,5 +1,6 @@
 from flask import current_app, Blueprint, jsonify, request, Response
 from flask_jwt_extended import get_jwt_identity, jwt_required
+from sqlalchemy.exc import IntegrityError
 
 from models import db, Edit, Pin
 from permissions import is_administrator, is_member
@@ -18,7 +19,12 @@ def ListPins():
 def CreatePin():
     json = request.json
     try:
-        newPin = Pin(json['position_x'], json['position_y'], json['symbol'], json['world_id'])
+        newPin = Pin(
+            json['position_x'], 
+            json['position_y'], 
+            json['symbol'] or None, 
+            json['world_id'] or None
+            )
         db.session.add(newPin)
         db.session.commit()
         newEdit = Edit(json['details'], newPin.id, get_jwt_identity()['id'])
@@ -27,8 +33,8 @@ def CreatePin():
         data = jsonify(newPin.to_dict())
         data.status_code = 201
         return data
-    except:
-        return Response('error creating record', status=400)
+    except IntegrityError as error:
+        return Response(error.args[0], status=400)
 
 @pins.route('/<id>', methods=['GET'])
 @jwt_required
@@ -56,8 +62,8 @@ def UpdatePin(id=0):
         db.session.add(newEdit)
         db.session.commit()
         return jsonify(pin.to_dict())
-    except:
-        return Response('error updating record', status=400)
+    except IntegrityError as Error:
+        return Response(error.args[0], status=400)
 
 @pins.route('/<id>', methods=['DELETE'])
 @jwt_required

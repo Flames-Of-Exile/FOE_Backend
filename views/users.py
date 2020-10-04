@@ -1,6 +1,7 @@
 import hashlib
 from flask import current_app, Blueprint, jsonify, request, Response
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
+from sqlalchemy.exc import IntegrityError
 
 from models import db, User
 from permissions import is_administrator, is_member
@@ -17,7 +18,11 @@ def ListUsers():
 def CreateUser():
     json = request.json
     try:
-        newUser = User(json['username'], hashlib.md5(json['password'].encode()).hexdigest(), json['email'])
+        newUser = User(
+            json['username'] or None, 
+            hashlib.md5(json['password'].encode()).hexdigest() or None, 
+            json['email'] or None
+            )
         db.session.add(newUser)
         db.session.commit()
         data = {}
@@ -26,8 +31,8 @@ def CreateUser():
         data = jsonify(data)
         data.status_code = 201
         return data
-    except:
-        return Response('error creating record', status=400)
+    except IntegrityError as error:
+        return Response(error.args[0], status=400)
 
 @users.route('/login', methods=['POST'])
 def Login():
@@ -61,13 +66,13 @@ def UpdateUser(id=0):
     try:
         json = request.json
         if 'password' in json.keys():
-            user.password = hashlib.md5(json['password'].encode()).hexdigest()
-        user.email = json['email']
-        user.theme = User.Theme(json['theme'])
+            user.password = hashlib.md5(json['password'].encode()).hexdigest() or None
+        user.email = json['email'] or None
+        user.theme = User.Theme(json['theme']) or None
         db.session.commit()
         return jsonify(user.to_dict())
-    except:
-        return Response('error updating record', status=400)
+    except IntegrityError as error:
+        return Response(error.args[0], status=400)
 
 @users.route('/<id>', methods=['PUT'])
 @jwt_required
@@ -76,11 +81,11 @@ def AdminUpdateUser(id=0):
     user = User.query.get_or_404(id)
     try:
         json = request.json
-        user.password = hashlib.md5(json['password'].encode()).hexdigest()
-        user.email = json['email']
+        user.password = hashlib.md5(json['password'].encode()).hexdigest() or None
+        user.email = json['email'] or None
         user.is_active = json['is_active']
-        user.role = User.Role(json['role'])
+        user.role = User.Role(json['role']) or None
         db.session.commit()
         return jsonify(user.to_dict())
-    except:
-        return Response('error updating record', status=400)
+    except IntegrityError as error:
+        return Response(error.args[0], status=400)
