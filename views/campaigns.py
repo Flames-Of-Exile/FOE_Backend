@@ -14,7 +14,7 @@ campaigns = Blueprint('campaigns', __name__, url_prefix='/api/campaigns')
 @jwt_required
 @is_member
 def ListCampaigns():
-    return jsonify([campaign.to_dict() for campaign in Campaign.query.all()])
+    return jsonify([campaign.to_dict() for campaign in Campaign.query.order_by(Campaign.is_default.desc(), Campaign.id.desc()).all()])
 
 @campaigns.route('', methods=['POST'])
 @jwt_required
@@ -70,12 +70,3 @@ def UpdateCampaign(id=0):
         return jsonify(campaign.to_dict())
     except IntegrityError as error:
         return Response(error.args[0], status=400)
-
-@campaigns.route('/latest', methods=['GET'])
-@jwt_required
-@is_member
-def GetLatest():
-    campaign = Campaign.query.filter_by(is_default=True).first()
-    if campaign is not None:
-        return jsonify(campaign.to_dict())
-    return Response('no default campaign found', status=404)
