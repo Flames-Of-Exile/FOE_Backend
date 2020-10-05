@@ -54,13 +54,15 @@ class Campaign(db.Model, SerializerMixin):
     image = db.Column(db.String(), nullable=False, unique=True)
     worlds = db.relationship('World', backref='campaign', lazy=True)
     is_default = db.Column(db.Boolean())
+    is_archived = db.Column(db.Boolean())
 
-    serialize_only = ('id', 'name', 'image', 'is_default', 'worlds.id', 'worlds.name')
+    serialize_rules = ('-worlds.campaign',)
 
     def __init__(self, name, image, is_default=False):
         self.name = name
         self.image = image
         self.is_default = is_default
+        self.is_archived = False
 
     def __repr__(self):
         return f'{self.id}: {self.name}'
