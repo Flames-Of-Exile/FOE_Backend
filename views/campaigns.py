@@ -14,7 +14,7 @@ campaigns = Blueprint('campaigns', __name__, url_prefix='/api/campaigns')
 @jwt_required
 @is_member
 def ListCampaigns():
-    return jsonify([campaign.to_dict() for campaign in Campaign.query.filter(is_archived=False).order_by(Campaign.is_default.desc(), Campaign.id.desc()).all()])
+    return jsonify([campaign.to_dict() for campaign in Campaign.query.filter(Campaign.is_archived==False).order_by(Campaign.is_default.desc(), Campaign.id.desc()).all()])
 
 @campaigns.route('', methods=['POST'])
 @jwt_required
