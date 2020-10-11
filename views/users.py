@@ -1,6 +1,6 @@
 import hashlib
 from flask import current_app, Blueprint, jsonify, request, Response
-from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
+from flask_jwt_extended import create_access_token, create_refresh_token, decode_token, get_jwt_identity, jwt_required
 from sqlalchemy.exc import IntegrityError
 
 from models import db, User
@@ -29,6 +29,7 @@ def CreateUser():
         data['user'] = newUser.to_dict()
         data['token'] = create_access_token(identity=newUser.to_dict())
         data = jsonify(data)
+        data.set_cookie('refresh_token', create_refresh_token(identity=newUser.to_dict()), httponly=True)
         data.status_code = 201
         return data
     except IntegrityError as error:
@@ -43,7 +44,9 @@ def Login():
             data = {}
             data['user'] = user.to_dict() 
             data['token'] = create_access_token(identity=user.to_dict())
-            return jsonify(data)
+            response = jsonify(data)
+            response.set_cookie('refresh_token', create_refresh_token(identity=user.to_dict()), httponly=True)
+            return response
         else:
             return Response('invalid username/password', status=400)
     except:
@@ -89,3 +92,19 @@ def AdminUpdateUser(id=0):
         return jsonify(user.to_dict())
     except IntegrityError as error:
         return Response(error.args[0], status=400)
+
+@users.route('/refresh', methods=['GET'])
+def RefreshSession():
+    refresh_token = request.cookies.get('refresh_token')
+    user = decode_token(refresh_token)['identity']
+
+    data = {}
+    data['user'] = user
+    data['token'] = create_access_token(identity=user)
+    return jsonify(data)
+
+@users.route('/logout', methods=['GET'])
+def Logout():
+    response = Response("")
+    response.delete_cookie('refresh_token')
+    return response

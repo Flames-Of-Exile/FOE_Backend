@@ -8,6 +8,8 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
     app.config['SECRET_KEY'] = "SUPER-SECRET"
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = 300 # 5 minutes
+    app.config['JWT_REFRESH_TOKEN_EXPIRES'] = 86400 # 1 day
     
     from models import db
     db.init_app(app)
