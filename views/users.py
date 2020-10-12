@@ -82,6 +82,8 @@ def UpdateUser(id=0):
 @is_administrator
 def AdminUpdateUser(id=0):
     user = User.query.get_or_404(id)
+    if get_jwt_identity()['id'] == int(id):
+        return Response('cannot update your own account', status=403)
     try:
         json = request.json
         user.password = hashlib.md5(json['password'].encode()).hexdigest() or None
