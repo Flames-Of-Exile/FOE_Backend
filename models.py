@@ -3,7 +3,6 @@ import enum
 
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_serializer import SerializerMixin
-from sqlalchemy.dialects.postgresql import JSON
 
 db = SQLAlchemy()
 
@@ -46,6 +45,7 @@ class User(db.Model, SerializerMixin):
     def __repr__(self):
         return f'{self.id}: {self.username}'
 
+
 class Campaign(db.Model, SerializerMixin):
     __tablename__ = 'campaigns'
 
@@ -67,6 +67,7 @@ class Campaign(db.Model, SerializerMixin):
     def __repr__(self):
         return f'{self.id}: {self.name}'
 
+
 class World(db.Model, SerializerMixin):
     __tablename__ = 'worlds'
 
@@ -85,6 +86,7 @@ class World(db.Model, SerializerMixin):
 
     def __repr__(self):
         return f'{self.id}: {self.name}'
+
 
 class Pin(db.Model, SerializerMixin):
     __tablename__ = "pins"
@@ -132,6 +134,7 @@ class Pin(db.Model, SerializerMixin):
 
     def __repr__(self):
         return f'{self.id}: {self.symbol} - {self.position_x}/{self.position_y}'
+
 
 class Edit(db.Model, SerializerMixin):
     __tablename__ = "edits"

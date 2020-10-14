@@ -1,5 +1,6 @@
 import hashlib
-from flask import current_app, Blueprint, jsonify, request, Response
+
+from flask import Blueprint, jsonify, request, Response
 from flask_jwt_extended import create_access_token, create_refresh_token, decode_token, get_jwt_identity, jwt_required
 from sqlalchemy.exc import IntegrityError
 
@@ -8,11 +9,13 @@ from permissions import is_administrator, is_member
 
 users = Blueprint('users', __name__, url_prefix='/api/users')
 
+
 @users.route('', methods=['GET'])
 @jwt_required
 @is_member
 def ListUsers():
     return jsonify([user.to_dict() for user in User.query.all()])
+
 
 @users.route('', methods=['POST'])
 def CreateUser():
@@ -35,6 +38,7 @@ def CreateUser():
     except IntegrityError as error:
         return Response(error.args[0], status=400)
 
+
 @users.route('/login', methods=['POST'])
 def Login():
     json = request.json
@@ -49,14 +53,16 @@ def Login():
             return response
         else:
             return Response('invalid username/password', status=400)
-    except:
+    except IntegrityError:
         return Response('invalid username/password', status=400)
-      
+
+
 @users.route('/<id>', methods=['GET'])
 @jwt_required
 @is_member
 def RetrieveUser(id=0):
     return jsonify(User.query.get_or_404(id).to_dict())
+
 
 @users.route('/<id>', methods=['PATCH'])
 @jwt_required
@@ -77,6 +83,7 @@ def UpdateUser(id=0):
     except IntegrityError as error:
         return Response(error.args[0], status=400)
 
+
 @users.route('/<id>', methods=['PUT'])
 @jwt_required
 @is_administrator
@@ -93,6 +100,7 @@ def AdminUpdateUser(id=0):
     except IntegrityError as error:
         return Response(error.args[0], status=400)
 
+
 @users.route('/refresh', methods=['GET'])
 def RefreshSession():
     refresh_token = request.cookies.get('refresh_token')
@@ -102,6 +110,7 @@ def RefreshSession():
     data['user'] = user
     data['token'] = create_access_token(identity=user)
     return jsonify(data)
+
 
 @users.route('/logout', methods=['GET'])
 def Logout():
