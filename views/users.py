@@ -22,8 +22,8 @@ def CreateUser():
     json = request.json
     try:
         newUser = User(
-            json['username'] or None, 
-            hashlib.md5(json['password'].encode()).hexdigest() or None, 
+            json['username'] or None,
+            hashlib.md5(json['password'].encode()).hexdigest() or None,
             json['email'] or None
             )
         db.session.add(newUser)
@@ -46,7 +46,7 @@ def Login():
         user = User.query.filter_by(username=json['username']).first()
         if (user.password == hashlib.md5(json['password'].encode()).hexdigest()):
             data = {}
-            data['user'] = user.to_dict() 
+            data['user'] = user.to_dict()
             data['token'] = create_access_token(identity=user.to_dict())
             response = jsonify(data)
             response.set_cookie('refresh_token', create_refresh_token(identity=user.to_dict()), httponly=True)

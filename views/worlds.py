@@ -29,8 +29,8 @@ def CreateWorld():
         return Response('invalid file type', status=400)
     try:
         newWorld = World(
-            request.form['name'] or None, 
-            f'/mediafiles/{secure_filename(file.filename)}', 
+            request.form['name'] or None,
+            f'/mediafiles/{secure_filename(file.filename)}',
             request.form['campaign_id'] or None
             )
         db.session.add(newWorld)

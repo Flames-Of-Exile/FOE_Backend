@@ -22,9 +22,9 @@ def CreatePin():
     json = request.json
     try:
         newPin = Pin(
-            json['position_x'], 
-            json['position_y'], 
-            Pin.Symbol(json['symbol']), 
+            json['position_x'],
+            json['position_y'],
+            Pin.Symbol(json['symbol']),
             json['world_id'] or None,
             json['rank'],
             json['name'] or None,
@@ -60,7 +60,7 @@ def UpdatePin(id=0):
         json = request.json
         details = ''
         if pin.position_x != json['position_x'] or pin.position_y != json['position_y']:
-            details += f'Position changed from {pin.position_x}/{pin.position_y} to {json["position_x"]}/{json["position_y"]}\n'
+            details += f'Position change from {pin.position_x}/{pin.position_y} to {json["position_x"]}/{json["position_y"]}\n'
         pin.position_x = json['position_x']
         pin.position_y = json['position_y']
         if pin.symbol != json['symbol']:
