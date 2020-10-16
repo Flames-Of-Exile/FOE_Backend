@@ -1,4 +1,4 @@
-from flask import current_app, Blueprint, jsonify, request, Response
+from flask import Blueprint, jsonify, request, Response
 from flask_jwt_extended import jwt_required
 from sqlalchemy.exc import IntegrityError
 from werkzeug.utils import secure_filename
@@ -10,11 +10,13 @@ from upload import allowed_file
 
 worlds = Blueprint('worlds', __name__, url_prefix='/api/worlds')
 
+
 @worlds.route('', methods=['GET'])
 @jwt_required
 @is_member
 def ListWorlds():
     return jsonify([world.to_dict() for world in World.query.all()])
+
 
 @worlds.route('', methods=['POST'])
 @jwt_required
@@ -27,8 +29,8 @@ def CreateWorld():
         return Response('invalid file type', status=400)
     try:
         newWorld = World(
-            request.form['name'] or None, 
-            f'/mediafiles/{secure_filename(file.filename)}', 
+            request.form['name'] or None,
+            f'/mediafiles/{secure_filename(file.filename)}',
             request.form['campaign_id'] or None
             )
         db.session.add(newWorld)
@@ -40,11 +42,13 @@ def CreateWorld():
     except IntegrityError as error:
         return Response(error.args[0], status=400)
 
+
 @worlds.route('/<id>', methods=['GET'])
 @jwt_required
 @is_member
 def RetrieveWorld(id=0):
     return jsonify(World.query.get_or_404(id).to_dict())
+
 
 @worlds.route('/<id>', methods=['PATCH'])
 @jwt_required

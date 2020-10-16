@@ -3,7 +3,8 @@ from functools import wraps
 from flask import Response
 from flask_jwt_extended import get_jwt_identity
 
-from models import db, User
+from models import User
+
 
 def is_administrator(func):
     @wraps(func)
@@ -15,6 +16,7 @@ def is_administrator(func):
             return Response('requires administrator account', status=403)
         return func(*args, **kwargs)
     return wrapper
+
 
 def is_member(func, **kwargs):
     @wraps(func)
