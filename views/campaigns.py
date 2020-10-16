@@ -83,7 +83,7 @@ def UpdateCampaign(id=0):
 @is_member
 def NameQuery():
     name = request.args.get('name')
-    return jsonify(Campaign.query.filter(name=name).first_or_404().to_dict())
+    return jsonify(Campaign.query.filter_by(name=name).first_or_404().to_dict())
 
 
 @campaigns.route('/archived', methods=['GET'])

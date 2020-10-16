@@ -1,15 +1,25 @@
+import enum
+import io
 import json
 import unittest
 
 from flask import Flask
 from flask_jwt_extended import JWTManager
+from passlib.hash import sha256_crypt
 
-from models import db, User
+from models import db, Campaign, Pin, User, World
+
+
+class Method(enum.Enum):
+    DELETE = 'delete'
+    GET = 'get'
+    PATCH = 'patch'
+    POST = 'post'
+    PUT = 'put'
 
 
 class BasicTests(unittest.TestCase):
 
-    # executed prior to each test
     def setUp(self):
         app = Flask(__name__)
         app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -42,20 +52,62 @@ class BasicTests(unittest.TestCase):
         self.app_context = app.app_context()
         self.app_context.push()
 
-        admin = User('admin', '21232f297a57a5a743894a0e4a801fc3', 'email@email.com', User.Role.ADMIN)
+        admin = User('admin', sha256_crypt.encrypt('admin'), 'email@email.com', User.Role.ADMIN)
         db.session.add(admin)
         db.session.commit()
 
+        campaign = Campaign('campaign_name', 'campaign.png', True)
+        db.session.add(campaign)
+        db.session.commit()
+
+        world = World('world_name', 'world.png', 1)
+        db.session.add(world)
+        db.session.commit()
+
+        pin = Pin(1, 1, Pin.Symbol.ANIMAL, 1, 1, '', 1, 1, 'notes')
+        db.session.add(pin)
+        db.session.commit()
+
+        self.DEFAULT_USER = admin
+        self.DEFAULT_CAMPAIGN = campaign
+        self.DEFAULT_WORLD = world
+        self.DEFAULT_PIN = pin
+        self.DEFAULT_TOKEN = f'Bearer {self.login("admin", "admin").get_json()["token"]}'
+
         self.assertEqual(app.debug, False)
 
-    # executed after each test
     def tearDown(self):
         self.app_context.pop()
 
+    def request(self, url, method=Method.GET, headers={}, data={}, content_type='application/json'):
+        if method is Method.DELETE:
+            return self.app.get(url, follow_redirects=True, headers=headers)
+        if method is Method.GET:
+            return self.app.get(url, follow_redirects=True, headers=headers)
+        if method is Method.PATCH:
+            return self.app.patch(url, data=data, follow_redirects=True, content_type=content_type, headers=headers)
+        if method is Method.PUT:
+            return self.app.put(url, data=data, follow_redirects=True, content_type=content_type, headers=headers)
+        if method is Method.POST:
+            return self.app.post(url, data=data, follow_redirects=True, content_type=content_type, headers=headers)
+
     def login(self, username, password):
         data = json.dumps({'username': username, 'password': password})
-        return self.app.post('/api/users/login', data=data, follow_redirects=True, content_type='application/json')
+        return self.request('/api/users/login', Method.POST, {}, data)
 
     def register(self, username, password, email):
         data = json.dumps({'username': username, 'password': password, 'email': email})
-        return self.app.post('/api/users', data=data, follow_redirects=True, content_type='application/json')
+        return self.request('/api/users', Method.POST, {}, data)
+
+    def logout(self):
+        return self.request('/api/users/logout')
+
+    def create_campaign(self, token, name, filename, is_default):
+        data = {'name': name, 'is_default': is_default, 'file': (io.BytesIO(b'mockdata'), filename)}
+        headers = {'Authorization': token}
+        return self.request('/api/campaigns', Method.POST, headers, data, 'multipart/form-data')
+
+    def create_world(self, token, name, filename, campaign_id):
+        data = {'name': name, 'campaign_id': campaign_id, 'file': (io.BytesIO(b'mockdata'), filename)}
+        headers = {'Authorization': token}
+        return self.request('/api/worlds', Method.POST, headers, data, 'multipart/form-data')

@@ -59,7 +59,7 @@ def Login():
             return response
         else:
             return Response('invalid username/password', status=400)
-    except IntegrityError:
+    except (IntegrityError, AttributeError):
         return Response('invalid username/password', status=400)
 
 
@@ -97,7 +97,8 @@ def AdminUpdateUser(id=0):
         return Response('cannot update your own account', status=403)
     try:
         json = request.json
-        user.password = sha256_crypt.encrypt(json['password']) or None
+        if ('password' in json.keys()):
+            user.password = sha256_crypt.encrypt(json['password'])
         user.email = json['email'] or None
         user.is_active = json['is_active']
         user.role = User.Role(json['role']) or None
