@@ -62,8 +62,6 @@ def RetrieveUser(id=0):
 @jwt_required
 def UpdateUser(id=0):
     user = User.query.get_or_404(id)
-    print(type(get_jwt_identity()['id']))
-    print(type(id))
     if (get_jwt_identity()['id'] != int(id)):
         return Response('can only update your own account', status=403)
     try:
