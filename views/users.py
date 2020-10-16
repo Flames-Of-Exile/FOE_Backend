@@ -1,6 +1,6 @@
 import re
 
-from flask import current_app, Blueprint, jsonify, request, Response
+from flask import Blueprint, jsonify, request, Response
 from flask_jwt_extended import create_access_token, create_refresh_token, decode_token, get_jwt_identity, jwt_required
 from passlib.hash import sha256_crypt
 from sqlalchemy.exc import IntegrityError
@@ -10,11 +10,13 @@ from permissions import is_administrator, is_member
 
 users = Blueprint('users', __name__, url_prefix='/api/users')
 
+
 @users.route('', methods=['GET'])
 @jwt_required
 @is_member
 def ListUsers():
     return jsonify([user.to_dict() for user in User.query.all()])
+
 
 @users.route('', methods=['POST'])
 def CreateUser():
@@ -26,8 +28,8 @@ def CreateUser():
         return response
     try:
         newUser = User(
-            json['username'] or None, 
-            sha256_crypt.encrypt(json['password']) or None, 
+            json['username'] or None,
+            sha256_crypt.encrypt(json['password']) or None,
             json['email'] or None
             )
         db.session.add(newUser)
@@ -42,6 +44,7 @@ def CreateUser():
     except IntegrityError as error:
         return Response(error.args[0], status=400)
 
+
 @users.route('/login', methods=['POST'])
 def Login():
     json = request.json
@@ -49,21 +52,23 @@ def Login():
         user = User.query.filter_by(username=json['username']).first()
         if sha256_crypt.verify(json['password'], user.password):
             data = {}
-            data['user'] = user.to_dict() 
+            data['user'] = user.to_dict()
             data['token'] = create_access_token(identity=user.to_dict())
             response = jsonify(data)
             response.set_cookie('refresh_token', create_refresh_token(identity=user.to_dict()), httponly=True)
             return response
         else:
             return Response('invalid username/password', status=400)
-    except:
+    except IntegrityError:
         return Response('invalid username/password', status=400)
-      
+
+
 @users.route('/<id>', methods=['GET'])
 @jwt_required
 @is_member
 def RetrieveUser(id=0):
     return jsonify(User.query.get_or_404(id).to_dict())
+
 
 @users.route('/<id>', methods=['PATCH'])
 @jwt_required
@@ -84,6 +89,7 @@ def UpdateUser(id=0):
     except IntegrityError as error:
         return Response(error.args[0], status=400)
 
+
 @users.route('/<id>', methods=['PUT'])
 @jwt_required
 @is_administrator
@@ -102,6 +108,7 @@ def AdminUpdateUser(id=0):
     except IntegrityError as error:
         return Response(error.args[0], status=400)
 
+
 @users.route('/refresh', methods=['GET'])
 def RefreshSession():
     refresh_token = request.cookies.get('refresh_token')
@@ -112,11 +119,13 @@ def RefreshSession():
     data['token'] = create_access_token(identity=user)
     return jsonify(data)
 
+
 @users.route('/logout', methods=['GET'])
 def Logout():
     response = Response("")
     response.delete_cookie('refresh_token')
     return response
+
 
 def PassComplexityCheck(password):
     # calculating the length
@@ -135,13 +144,13 @@ def PassComplexityCheck(password):
     symbol_error = re.search(r"\W", password) is None
 
     # overall result
-    password_ok = not ( length_error or digit_error or uppercase_error or lowercase_error or symbol_error )
+    password_ok = not (length_error or digit_error or uppercase_error or lowercase_error or symbol_error)
 
     return {
-        'password_ok' : password_ok,
-        'length_error' : length_error,
-        'digit_error' : digit_error,
-        'uppercase_error' : uppercase_error,
-        'lowercase_error' : lowercase_error,
-        'symbol_error' : symbol_error,
+        'password_ok': password_ok,
+        'length_error': length_error,
+        'digit_error': digit_error,
+        'uppercase_error': uppercase_error,
+        'lowercase_error': lowercase_error,
+        'symbol_error': symbol_error,
     }

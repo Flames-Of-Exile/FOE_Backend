@@ -1,8 +1,5 @@
-import os
-
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
-from flask_sqlalchemy import SQLAlchemy
 from passlib.hash import sha256_crypt
 
 from app import create_app
@@ -14,6 +11,7 @@ migrate = Migrate(app, db)
 manager = Manager(app)
 
 manager.add_command('db', MigrateCommand)
+
 
 @manager.command
 def create_admin():

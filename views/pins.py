@@ -1,4 +1,4 @@
-from flask import current_app, Blueprint, jsonify, request, Response
+from flask import Blueprint, jsonify, request, Response
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from sqlalchemy.exc import IntegrityError
 
@@ -7,11 +7,13 @@ from permissions import is_administrator, is_member
 
 pins = Blueprint('pins', __name__, url_prefix='/api/pins')
 
+
 @pins.route('', methods=['GET'])
 @jwt_required
 @is_member
 def ListPins():
     return jsonify([pin.to_dict() for pin in Pin.query.all()])
+
 
 @pins.route('', methods=['POST'])
 @jwt_required
@@ -20,9 +22,9 @@ def CreatePin():
     json = request.json
     try:
         newPin = Pin(
-            json['position_x'], 
-            json['position_y'], 
-            Pin.Symbol(json['symbol']), 
+            json['position_x'],
+            json['position_y'],
+            Pin.Symbol(json['symbol']),
             json['world_id'] or None,
             json['rank'],
             json['name'] or None,
@@ -41,11 +43,13 @@ def CreatePin():
     except IntegrityError as error:
         return Response(error.args[0], status=400)
 
+
 @pins.route('/<id>', methods=['GET'])
 @jwt_required
 @is_member
 def RetrievePin(id=0):
     return jsonify(Pin.query.get_or_404(id).to_dict())
+
 
 @pins.route('/<id>', methods=['PATCH'])
 @jwt_required
@@ -56,7 +60,7 @@ def UpdatePin(id=0):
         json = request.json
         details = ''
         if pin.position_x != json['position_x'] or pin.position_y != json['position_y']:
-            details += f'Position changed from {pin.position_x}/{pin.position_y} to {json["position_x"]}/{json["position_y"]}\n'
+            details += f'Position change from {pin.position_x}/{pin.position_y} to {json["position_x"]}/{json["position_y"]}\n'
         pin.position_x = json['position_x']
         pin.position_y = json['position_y']
         if pin.symbol != json['symbol']:
@@ -84,6 +88,7 @@ def UpdatePin(id=0):
         return jsonify(pin.to_dict())
     except IntegrityError as error:
         return Response(error.args[0], status=400)
+
 
 @pins.route('/<id>', methods=['DELETE'])
 @jwt_required
