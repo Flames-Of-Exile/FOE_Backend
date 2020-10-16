@@ -1,6 +1,8 @@
-import hashlib
+import re
+
 from flask import current_app, Blueprint, jsonify, request, Response
 from flask_jwt_extended import create_access_token, create_refresh_token, decode_token, get_jwt_identity, jwt_required
+from passlib.hash import sha256_crypt
 from sqlalchemy.exc import IntegrityError
 
 from models import db, User
@@ -17,10 +19,15 @@ def ListUsers():
 @users.route('', methods=['POST'])
 def CreateUser():
     json = request.json
+    validation_result = PassComplexityCheck(json['password'])
+    if validation_result['password_ok'] is False:
+        response = jsonify(validation_result)
+        response.status_code = 400
+        return response
     try:
         newUser = User(
             json['username'] or None, 
-            hashlib.md5(json['password'].encode()).hexdigest() or None, 
+            sha256_crypt.encrypt(json['password']) or None, 
             json['email'] or None
             )
         db.session.add(newUser)
@@ -40,7 +47,7 @@ def Login():
     json = request.json
     try:
         user = User.query.filter_by(username=json['username']).first()
-        if (user.password == hashlib.md5(json['password'].encode()).hexdigest()):
+        if sha256_crypt.verify(json['password'], user.password):
             data = {}
             data['user'] = user.to_dict() 
             data['token'] = create_access_token(identity=user.to_dict())
@@ -69,7 +76,7 @@ def UpdateUser(id=0):
     try:
         json = request.json
         if 'password' in json.keys():
-            user.password = hashlib.md5(json['password'].encode()).hexdigest() or None
+            user.password = sha256_crypt.encrypt(json['password']) or None
         user.email = json['email'] or None
         user.theme = User.Theme(json['theme']) or None
         db.session.commit()
@@ -84,7 +91,7 @@ def AdminUpdateUser(id=0):
     user = User.query.get_or_404(id)
     try:
         json = request.json
-        user.password = hashlib.md5(json['password'].encode()).hexdigest() or None
+        user.password = sha256_crypt.encrypt(json['password']) or None
         user.email = json['email'] or None
         user.is_active = json['is_active']
         user.role = User.Role(json['role']) or None
@@ -108,3 +115,31 @@ def Logout():
     response = Response("")
     response.delete_cookie('refresh_token')
     return response
+
+def PassComplexityCheck(password):
+    # calculating the length
+    length_error = (len(password) < 8)
+
+    # searching for digits
+    digit_error = re.search(r"\d", password) is None
+
+    # searching for uppercase
+    uppercase_error = re.search(r"[A-Z]", password) is None
+
+    # searching for lowercase
+    lowercase_error = re.search(r"[a-z]", password) is None
+
+    # searching for symbols
+    symbol_error = re.search(r"\W", password) is None
+
+    # overall result
+    password_ok = not ( length_error or digit_error or uppercase_error or lowercase_error or symbol_error )
+
+    return {
+        'password_ok' : password_ok,
+        'length_error' : length_error,
+        'digit_error' : digit_error,
+        'uppercase_error' : uppercase_error,
+        'lowercase_error' : lowercase_error,
+        'symbol_error' : symbol_error,
+    }
