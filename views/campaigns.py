@@ -30,7 +30,7 @@ def CreateCampaign():
         return Response('invalid file type', status=400)
     try:
         newCampaign = Campaign(request.form['name'] or None, f'/mediafiles/{secure_filename(file.filename)}')
-        if (request.form['is_default'] == "true"):
+        if (request.form['is_default'] == 'true'):
             old_default = Campaign.query.filter_by(is_default=True).all()
             for camp in old_default:
                 camp.is_default = False
@@ -64,12 +64,14 @@ def UpdateCampaign(id=0):
         return Response('invalid file type', status=400)
     try:
         campaign.name = request.form['name'] or None
-        campaign.is_archived = request.form['is_archived']
-        if (request.form['is_default'] == "true"):
+        campaign.is_archived = request.form['is_archived'] == 'true'
+        if (request.form['is_default'] == 'true'):
             old_default = Campaign.query.filter_by(is_default=True).all()
             for camp in old_default:
                 camp.is_default = False
             campaign.is_default = True
+        else:
+            campaign.is_default = False
         campaign.image = f'/mediafiles/{secure_filename(file.filename)}'
         db.session.commit()
         file.save(f'/usr/src/app{campaign.image}')
@@ -90,5 +92,5 @@ def NameQuery():
 @jwt_required
 @is_member
 def ListArchived():
-    return jsonify([campaign.to_dict() for campaign in Campaign.query.filter(is_archived=True)
+    return jsonify([campaign.to_dict() for campaign in Campaign.query.filter_by(is_archived=True)
                     .order_by(Campaign.id.desc()).all()])

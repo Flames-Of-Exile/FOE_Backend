@@ -56,11 +56,11 @@ class BasicTests(unittest.TestCase):
         db.session.add(admin)
         db.session.commit()
 
-        campaign = Campaign('campaign_name', 'campaign.png', True)
+        campaign = Campaign('campaign_name', '/mediafiles/campaign.png', True)
         db.session.add(campaign)
         db.session.commit()
 
-        world = World('world_name', 'world.png', 1)
+        world = World('world_name', '/mediafiles/world.png', 1)
         db.session.add(world)
         db.session.commit()
 
@@ -81,7 +81,7 @@ class BasicTests(unittest.TestCase):
 
     def request(self, url, method=Method.GET, headers={}, data={}, content_type='application/json'):
         if method is Method.DELETE:
-            return self.app.get(url, follow_redirects=True, headers=headers)
+            return self.app.delete(url, follow_redirects=True, headers=headers)
         if method is Method.GET:
             return self.app.get(url, follow_redirects=True, headers=headers)
         if method is Method.PATCH:
@@ -111,3 +111,18 @@ class BasicTests(unittest.TestCase):
         data = {'name': name, 'campaign_id': campaign_id, 'file': (io.BytesIO(b'mockdata'), filename)}
         headers = {'Authorization': token}
         return self.request('/api/worlds', Method.POST, headers, data, 'multipart/form-data')
+
+    def create_pin(self, token, position_x, position_y, symbol, world_id, rank=0, name='', amount=0, respawn=0, notes=''):
+        data = json.dumps({
+            'position_x': position_x,
+            'position_y': position_y,
+            'symbol': symbol,
+            'world_id': world_id,
+            'rank': rank,
+            'name': name,
+            'amount': amount,
+            'respawn': respawn,
+            'notes': notes
+        })
+        headers = {'Authorization': token}
+        return self.request('/api/pins', Method.POST, headers, data)

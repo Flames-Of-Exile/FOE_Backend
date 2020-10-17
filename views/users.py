@@ -111,7 +111,8 @@ def AdminUpdateUser(id=0):
 @users.route('/refresh', methods=['GET'])
 def RefreshSession():
     refresh_token = request.cookies.get('refresh_token')
-    user = decode_token(refresh_token)['identity']
+    user = User.query.get(decode_token(refresh_token)['identity']['id'])
+    user = user.to_dict()
 
     data = {}
     data['user'] = user

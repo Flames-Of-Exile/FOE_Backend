@@ -50,7 +50,7 @@ class Campaign(db.Model, SerializerMixin):
     __tablename__ = 'campaigns'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(), nullable=False)
+    name = db.Column(db.String(), nullable=False, unique=True)
     image = db.Column(db.String(), nullable=False, unique=True)
     worlds = db.relationship('World', backref='campaign', lazy=True)
     is_default = db.Column(db.Boolean())
