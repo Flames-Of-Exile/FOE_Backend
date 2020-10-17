@@ -18,7 +18,7 @@ jobs:
         image: postgres:12.0-alpine
         env:
           POSTGRES_PASSWORD: flamesofexile
-          POSTGRES_USERNAME: flamesofexile
+          POSTGRES_USER: flamesofexile
           POSTGRES_DB: flamesofexile
         options: >-
           --health-cmd pg_isready
