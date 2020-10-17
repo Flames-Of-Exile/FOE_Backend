@@ -15,7 +15,7 @@ jobs:
 
     services:
       test-db:
-        image: postgres
+        image: postgres:12.0-alpine
         env:
           POSTGRES_PASSWORD: flamesofexile
           POSTGRES_USERNAME: flamesofexile
