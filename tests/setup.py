@@ -7,7 +7,7 @@ from flask import Flask
 from flask_jwt_extended import JWTManager
 from passlib.hash import sha256_crypt
 
-from models import db, Campaign, Pin, User, World
+from models import db, Campaign, Guild, Pin, User, World
 
 
 class Method(enum.Enum):
@@ -33,10 +33,12 @@ class BasicTests(unittest.TestCase):
         app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://flamesofexile:flamesofexile@test-db:5432/flamesofexile'
 
         from views.campaigns import campaigns
+        from views.guilds import guilds
         from views.pins import pins
         from views.users import users
         from views.worlds import worlds
         app.register_blueprint(campaigns)
+        app.register_blueprint(guilds)
         app.register_blueprint(pins)
         app.register_blueprint(users)
         app.register_blueprint(worlds)
@@ -52,7 +54,12 @@ class BasicTests(unittest.TestCase):
         self.app_context = app.app_context()
         self.app_context.push()
 
-        admin = User('admin', sha256_crypt.encrypt('admin'), 'email@email.com', User.Role.ADMIN)
+        guild = Guild('Flames of Exile')
+        db.session.add(guild)
+        db.session.commit()
+        foe_guild = db.session.query(Guild).filter_by(name='Flames of Exile').first()
+
+        admin = User('admin', sha256_crypt.encrypt('admin'), 'email@email.com', foe_guild.id, User.Role.ADMIN)
         db.session.add(admin)
         db.session.commit()
 
@@ -68,6 +75,7 @@ class BasicTests(unittest.TestCase):
         db.session.add(pin)
         db.session.commit()
 
+        self.DEFAULT_GUILD = guild
         self.DEFAULT_USER = admin
         self.DEFAULT_CAMPAIGN = campaign
         self.DEFAULT_WORLD = world
@@ -95,8 +103,8 @@ class BasicTests(unittest.TestCase):
         data = json.dumps({'username': username, 'password': password})
         return self.request('/api/users/login', Method.POST, {}, data)
 
-    def register(self, username, password, email):
-        data = json.dumps({'username': username, 'password': password, 'email': email})
+    def register(self, username, password, email, guild_id):
+        data = json.dumps({'username': username, 'password': password, 'email': email, 'guild_id': guild_id})
         return self.request('/api/users', Method.POST, {}, data)
 
     def logout(self):
@@ -126,3 +134,8 @@ class BasicTests(unittest.TestCase):
         })
         headers = {'Authorization': token}
         return self.request('/api/pins', Method.POST, headers, data)
+
+    def create_guild(self, token, name):
+        data = json.dumps({'name': name})
+        headers = {'Authorization': token}
+        return self.request('/api/guilds', Method.POST, headers, data)
