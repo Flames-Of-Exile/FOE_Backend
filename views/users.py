@@ -59,7 +59,7 @@ def Login():
             return response
         else:
             return Response('invalid username/password', status=400)
-    except IntegrityError:
+    except (IntegrityError, AttributeError):
         return Response('invalid username/password', status=400)
 
 
@@ -74,8 +74,6 @@ def RetrieveUser(id=0):
 @jwt_required
 def UpdateUser(id=0):
     user = User.query.get_or_404(id)
-    print(type(get_jwt_identity()['id']))
-    print(type(id))
     if (get_jwt_identity()['id'] != int(id)):
         return Response('can only update your own account', status=403)
     try:
@@ -99,7 +97,8 @@ def AdminUpdateUser(id=0):
         return Response('cannot update your own account', status=403)
     try:
         json = request.json
-        user.password = sha256_crypt.encrypt(json['password']) or None
+        if ('password' in json.keys()):
+            user.password = sha256_crypt.encrypt(json['password'])
         user.email = json['email'] or None
         user.is_active = json['is_active']
         user.role = User.Role(json['role']) or None
@@ -112,7 +111,8 @@ def AdminUpdateUser(id=0):
 @users.route('/refresh', methods=['GET'])
 def RefreshSession():
     refresh_token = request.cookies.get('refresh_token')
-    user = decode_token(refresh_token)['identity']
+    user = User.query.get(decode_token(refresh_token)['identity']['id'])
+    user = user.to_dict()
 
     data = {}
     data['user'] = user

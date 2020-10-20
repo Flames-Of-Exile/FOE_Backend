@@ -27,10 +27,10 @@ def CreatePin():
             Pin.Symbol(json['symbol']),
             json['world_id'] or None,
             json['rank'],
-            json['name'] or None,
+            json['name'],
             json['amount'],
             json['respawn'],
-            json['notes'] or None
+            json['notes']
             )
         db.session.add(newPin)
         db.session.commit()
@@ -70,7 +70,7 @@ def UpdatePin(id=0):
             details += f'Rank changed from {pin.rank} to {json["rank"]}\n'
             pin.rank = json['rank']
         if pin.name != json['name']:
-            details += f'Name changed from {pin.name} to {json["name"]}]n'
+            details += f'Name changed from {pin.name} to {json["name"]}\n'
             pin.name = json['name']
         if pin.amount != json['amount']:
             details += f'Amount changed from {pin.amount} to {json["amount"]}\n'
