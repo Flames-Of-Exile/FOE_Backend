@@ -168,7 +168,7 @@ class Guild(db.Model, SerializerMixin):
     is_active = db.Column(db.Boolean(), nullable=False)
     users = db.relationship('User', backref='guild', lazy=True)
 
-    serialize_rules = ('-users.guild',)
+    serialize_rules = ('-users.guild', '-users.email')
 
     def __init__(self, name):
         self.name = name
