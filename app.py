@@ -1,6 +1,7 @@
 import os
 
 from flask import Flask
+from flask_mail import Mail
 from flask_jwt_extended import JWTManager
 
 
@@ -12,6 +13,8 @@ def create_app():
     app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = 300  # 5 minutes
     app.config['JWT_REFRESH_TOKEN_EXPIRES'] = 86400  # 1 day
+
+    app.config['SECURITY_PASSWORD_SALT'] = os.environ['SECURITY_PASSWORD_SALT']
 
     from models import db
     db.init_app(app)
@@ -26,6 +29,7 @@ def create_app():
     app.register_blueprint(worlds)
 
     JWTManager(app)
+    Mail(app)
 
     return app
 

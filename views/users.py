@@ -5,6 +5,7 @@ from flask_jwt_extended import create_access_token, create_refresh_token, decode
 from passlib.hash import sha256_crypt
 from sqlalchemy.exc import IntegrityError
 
+from email_token import confirm_token, generate_confirmation_token
 from models import db, User
 from permissions import is_administrator, is_member
 
@@ -37,6 +38,8 @@ def CreateUser():
         data = {}
         data['user'] = newUser.to_dict()
         data['token'] = create_access_token(identity=newUser.to_dict())
+        # temporary
+        data['confirmToken'] = generate_confirmation_token(newUser.email)
         data = jsonify(data)
         data.set_cookie('refresh_token', create_refresh_token(identity=newUser.to_dict()), httponly=True)
         data.status_code = 201
@@ -125,6 +128,31 @@ def Logout():
     response = Response("")
     response.delete_cookie('refresh_token')
     return response
+
+
+@users.route('/confirm', methods=['GET'])
+@jwt_required
+def ConfirmEmail():
+    token = request.args.get('token')
+    user = User.query.get(get_jwt_identity()['id'])
+    if user.email_confirmed is True:
+        return Response('user has already confirmed their email', status=400)
+    email = confirm_token(token)
+    if email == user.email:
+        user.email_confirmed = True
+        db.session.commit()
+        return jsonify(user.to_dict())
+    return Response('invalid token', status=400)
+
+
+@users.route('/resend', methods=['GET'])
+@jwt_required
+def ResendConfirmation():
+    user = User.query.get(get_jwt_identity()['id'])
+    if user.email_confirmed is True:
+        return Response('user has already confirmed their email', status_code=400)
+    token = generate_confirmation_token(user.email)
+    return jsonify({'token': token})
 
 
 def PassComplexityCheck(password):

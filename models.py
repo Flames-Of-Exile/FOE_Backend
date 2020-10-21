@@ -30,9 +30,10 @@ class User(db.Model, SerializerMixin):
     is_active = db.Column(db.Boolean(), nullable=False)
     role = db.Column(db.Enum(Role), nullable=False)
     theme = db.Column(db.Enum(Theme), nullable=False)
+    email_confirmed = db.Column(db.Boolean(), nullable=False)
     edits = db.relationship('Edit', backref='user', lazy=True)
 
-    serialize_only = ('id', 'username', 'email', 'is_active', 'role', 'theme', 'edits.id')
+    serialize_only = ('id', 'username', 'email', 'is_active', 'role', 'theme', 'email_confirmed', 'edits.id')
 
     def __init__(self, username, password, email, role=Role.GUEST):
         self.username = username
@@ -41,6 +42,7 @@ class User(db.Model, SerializerMixin):
         self.is_active = True
         self.role = role
         self.theme = User.Theme.DEFAULT
+        self.email_confirmed = False
 
     def __repr__(self):
         return f'{self.id}: {self.username}'
