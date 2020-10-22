@@ -3,7 +3,7 @@ from flask_migrate import Migrate, MigrateCommand
 from passlib.hash import sha256_crypt
 
 from app import create_app
-from models import db, User
+from models import db, Guild, User
 
 app = create_app()
 
@@ -15,7 +15,11 @@ manager.add_command('db', MigrateCommand)
 
 @manager.command
 def create_admin():
-    admin = User('admin', sha256_crypt.encrypt('admin'), 'email@email.com', User.Role.ADMIN)
+    foe_guild = Guild('Flames of Exile')
+    db.session.add(foe_guild)
+    db.session.commit
+    foe_guild = db.session.query(Guild).filter_by(name='Flames of Exile').first()
+    admin = User('admin', sha256_crypt.encrypt('admin'), 'email@email.com', foe_guild.id, User.Role.ADMIN)
     db.session.add(admin)
     db.session.commit()
 

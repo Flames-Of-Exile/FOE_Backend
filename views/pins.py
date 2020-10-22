@@ -3,21 +3,21 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 from sqlalchemy.exc import IntegrityError
 
 from models import db, Edit, Pin
-from permissions import is_administrator, is_member
+from permissions import is_administrator, is_verified
 
 pins = Blueprint('pins', __name__, url_prefix='/api/pins')
 
 
 @pins.route('', methods=['GET'])
 @jwt_required
-@is_member
+@is_verified
 def ListPins():
     return jsonify([pin.to_dict() for pin in Pin.query.all()])
 
 
 @pins.route('', methods=['POST'])
 @jwt_required
-@is_member
+@is_verified
 def CreatePin():
     json = request.json
     try:
@@ -46,14 +46,14 @@ def CreatePin():
 
 @pins.route('/<id>', methods=['GET'])
 @jwt_required
-@is_member
+@is_verified
 def RetrievePin(id=0):
     return jsonify(Pin.query.get_or_404(id).to_dict())
 
 
 @pins.route('/<id>', methods=['PATCH'])
 @jwt_required
-@is_member
+@is_verified
 def UpdatePin(id=0):
     pin = Pin.query.get_or_404(id)
     try:

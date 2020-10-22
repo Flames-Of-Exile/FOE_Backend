@@ -4,7 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from werkzeug.utils import secure_filename
 
 from models import db, Campaign
-from permissions import is_administrator, is_member
+from permissions import is_administrator, is_verified
 from upload import allowed_file
 
 
@@ -13,7 +13,7 @@ campaigns = Blueprint('campaigns', __name__, url_prefix='/api/campaigns')
 
 @campaigns.route('', methods=['GET'])
 @jwt_required
-@is_member
+@is_verified
 def ListCampaigns():
     return jsonify([campaign.to_dict() for campaign in Campaign.query.filter_by(is_archived=False)
                     .order_by(Campaign.is_default.desc(), Campaign.id.desc()).all()])
@@ -47,7 +47,7 @@ def CreateCampaign():
 
 @campaigns.route('/<id>', methods=['GET'])
 @jwt_required
-@is_member
+@is_verified
 def RetrieveCampaign(id=0):
     return jsonify(Campaign.query.get_or_404(id).to_dict())
 
@@ -82,7 +82,7 @@ def UpdateCampaign(id=0):
 
 @campaigns.route('/q', methods=['GET'])
 @jwt_required
-@is_member
+@is_verified
 def NameQuery():
     name = request.args.get('name')
     return jsonify(Campaign.query.filter_by(name=name).first_or_404().to_dict())
@@ -90,7 +90,7 @@ def NameQuery():
 
 @campaigns.route('/archived', methods=['GET'])
 @jwt_required
-@is_member
+@is_verified
 def ListArchived():
     return jsonify([campaign.to_dict() for campaign in Campaign.query.filter_by(is_archived=True)
                     .order_by(Campaign.id.desc()).all()])

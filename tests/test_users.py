@@ -35,7 +35,7 @@ class UserTests(BasicTests):
         self.assertEqual(response.status_code, 200)
 
     def test_patch_update_other(self):
-        response = self.register('new', '1qaz!QAZ', 'new@email.com')
+        response = self.register('new', '1qaz!QAZ', 'new@email.com', self.DEFAULT_GUILD.id)
         response = self.request('/api/users/2', Method.PATCH, {'Authorization': self.DEFAULT_TOKEN})
         self.assertEqual(response.status_code, 403)
         self.assertIn(b'can only update your own account', response.data)
@@ -46,17 +46,19 @@ class UserTests(BasicTests):
         self.assertIn(b'cannot update your own account', response.data)
 
     def test_put_update_other(self):
-        response = self.register('new', '1qaz!QAZ', 'new@email.com')
-        data = json.dumps({'email': 'updated@email.com', 'is_active': True, 'role': User.Role.MEMBER.value})
+        response = self.register('new', '1qaz!QAZ', 'new@email.com', self.DEFAULT_GUILD.id)
+        data = json.dumps({'email': 'updated@email.com', 'is_active': True, 'role': User.Role.VERIFIED.value,
+                           'guild_id': self.DEFAULT_GUILD.id})
         response = self.request('/api/users/2', Method.PUT, {'Authorization': self.DEFAULT_TOKEN}, data)
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'"is_active":true', response.data)
         self.assertIn(b'"email":"updated@email.com"', response.data)
-        self.assertIn(b'"role":"member"', response.data)
+        self.assertIn(b'"role":"verified"', response.data)
 
     def test_put_update_password(self):
-        response = self.register('new', '1qaz!QAZ', 'new@email.com')
-        data = json.dumps({'email': 'new@email.com', 'is_active': True, 'role': User.Role.GUEST.value, 'password': '!QAZ1qaz'})
+        response = self.register('new', '1qaz!QAZ', 'new@email.com', self.DEFAULT_GUILD.id)
+        data = json.dumps({'email': 'new@email.com', 'is_active': True, 'role': User.Role.GUEST.value, 'password': '!QAZ1qaz',
+                           'guild_id': self.DEFAULT_GUILD.id})
         response = self.request('/api/users/2', Method.PUT, {'Authorization': self.DEFAULT_TOKEN}, data)
         self.assertEqual(response.status_code, 200)
         response = self.login('new', '!QAZ1qaz')

@@ -12,7 +12,7 @@ class User(db.Model, SerializerMixin):
 
     class Role(enum.Enum):
         GUEST = 'guest'
-        MEMBER = 'member'
+        VERIFIED = 'verified'
         ADMIN = 'admin'
 
     class Theme(enum.Enum):
@@ -31,16 +31,19 @@ class User(db.Model, SerializerMixin):
     role = db.Column(db.Enum(Role), nullable=False)
     theme = db.Column(db.Enum(Theme), nullable=False)
     edits = db.relationship('Edit', backref='user', lazy=True)
+    guild_id = db.Column(db.Integer, db.ForeignKey('guilds.id'), nullable=False)
 
-    serialize_only = ('id', 'username', 'email', 'is_active', 'role', 'theme', 'edits.id')
+    serialize_only = ('id', 'username', 'email', 'is_active', 'role', 'theme', 'edits.id',
+                      'guild.id', 'guild.name', 'guild.is_active')
 
-    def __init__(self, username, password, email, role=Role.GUEST):
+    def __init__(self, username, password, email, guild_id, role=Role.GUEST):
         self.username = username
         self.password = password
         self.email = email
         self.is_active = True
         self.role = role
         self.theme = User.Theme.DEFAULT
+        self.guild_id = guild_id
 
     def __repr__(self):
         return f'{self.id}: {self.username}'
@@ -155,3 +158,21 @@ class Edit(db.Model, SerializerMixin):
 
     def __repr__(self):
         return f'{self.id}: {self.details} - {self.datetime}'
+
+
+class Guild(db.Model, SerializerMixin):
+    __tablename__ = "guilds"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(), nullable=False, unique=True)
+    is_active = db.Column(db.Boolean(), nullable=False)
+    users = db.relationship('User', backref='guild', lazy=True)
+
+    serialize_rules = ('-users.guild', '-users.email')
+
+    def __init__(self, name):
+        self.name = name
+        self.is_active = True
+
+    def __repr__(self):
+        return f'{self.id}: {self.name} - {self.is_active}'
