@@ -15,8 +15,8 @@ manager.add_command('db', MigrateCommand)
 
 @manager.command
 def create_admin():
-    admin = User('admin', sha256_crypt.encrypt('admin'), 'email@email.com', User.Role.ADMIN)
-    admin.email_confirmed = True
+    admin = User('DiscordBot', sha256_crypt.encrypt('admin'), User.Role.ADMIN)
+    admin.discord_confirmed = True
     db.session.add(admin)
     db.session.commit()
 

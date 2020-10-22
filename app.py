@@ -1,7 +1,6 @@
 import os
 
 from flask import Flask
-from flask_mail import Mail
 from flask_jwt_extended import JWTManager
 
 
@@ -29,7 +28,6 @@ def create_app():
     app.register_blueprint(worlds)
 
     JWTManager(app)
-    Mail(app)
 
     return app
 

@@ -28,3 +28,13 @@ def is_member(func, **kwargs):
             return Response('requires member account', status=403)
         return func(*args, **kwargs)
     return wrapper
+
+
+def is_discord_bot(func, **kwargs):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        user = User.query.get(get_jwt_identity()['id'])
+        if not user.username == 'DiscordBot':
+            return Response('only discord bot is allowed access', status=403)
+        return func(*args, **kwargs)
+    return wrapper

@@ -26,23 +26,23 @@ class User(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(), nullable=False, unique=True)
     password = db.Column(db.String(), nullable=False)
-    email = db.Column(db.String(), nullable=False, unique=True)
+    discord = db.Column(db.String(), unique=True)
     is_active = db.Column(db.Boolean(), nullable=False)
     role = db.Column(db.Enum(Role), nullable=False)
     theme = db.Column(db.Enum(Theme), nullable=False)
-    email_confirmed = db.Column(db.Boolean(), nullable=False)
+    discord_confirmed = db.Column(db.Boolean(), nullable=False)
     edits = db.relationship('Edit', backref='user', lazy=True)
 
-    serialize_only = ('id', 'username', 'email', 'is_active', 'role', 'theme', 'email_confirmed', 'edits.id')
+    serialize_only = ('id', 'username', 'is_active', 'role', 'theme', 'discord_confirmed', 'edits.id')
 
-    def __init__(self, username, password, email, role=Role.GUEST):
+    def __init__(self, username, password, role=Role.GUEST):
         self.username = username
         self.password = password
-        self.email = email
+        self.discord = None
         self.is_active = True
         self.role = role
         self.theme = User.Theme.DEFAULT
-        self.email_confirmed = False
+        self.discord_confirmed = False
 
     def __repr__(self):
         return f'{self.id}: {self.username}'
