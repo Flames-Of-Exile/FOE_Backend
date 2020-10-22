@@ -1,7 +1,6 @@
 import enum
 import io
 import json
-import os
 import unittest
 
 from flask import Flask
@@ -27,7 +26,7 @@ class BasicTests(unittest.TestCase):
         app.config['SECRET_KEY'] = "SUPER-SECRET"
         app.config['JWT_ACCESS_TOKEN_EXPIRES'] = 300  # 5 minutes
         app.config['JWT_REFRESH_TOKEN_EXPIRES'] = 86400  # 1 day
-        app.config['SECURITY_PASSWORD_SALT'] = os.environ['SECURITY_PASSWORD_SALT']
+        app.config['SECURITY_PASSWORD_SALT'] = 'super-secret'
 
         app.config['TESTING'] = True
         app.config['WTF_CSRF_ENABLED'] = False
