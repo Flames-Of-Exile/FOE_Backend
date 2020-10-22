@@ -7,14 +7,14 @@ from sqlalchemy.exc import IntegrityError
 
 from discord_token import confirm_token, generate_confirmation_token
 from models import db, User
-from permissions import is_administrator, is_discord_bot, is_member
+from permissions import is_administrator, is_discord_bot, is_verified
 
 users = Blueprint('users', __name__, url_prefix='/api/users')
 
 
 @users.route('', methods=['GET'])
 @jwt_required
-@is_member
+@is_verified
 def ListUsers():
     return jsonify([user.to_dict() for user in User.query.all()])
 
@@ -30,7 +30,8 @@ def CreateUser():
     try:
         newUser = User(
             json['username'] or None,
-            sha256_crypt.encrypt(json['password']) or None
+            sha256_crypt.encrypt(json['password']) or None,
+            json['guild_id']
             )
         db.session.add(newUser)
         db.session.commit()
@@ -65,7 +66,7 @@ def Login():
 
 @users.route('/<id>', methods=['GET'])
 @jwt_required
-@is_member
+@is_verified
 def RetrieveUser(id=0):
     return jsonify(User.query.get_or_404(id).to_dict())
 
@@ -98,6 +99,7 @@ def AdminUpdateUser(id=0):
         json = request.json
         if ('password' in json.keys()):
             user.password = sha256_crypt.encrypt(json['password'])
+        user.guild_id = json['guild_id']
         user.is_active = json['is_active']
         user.role = User.Role(json['role']) or None
         db.session.commit()
