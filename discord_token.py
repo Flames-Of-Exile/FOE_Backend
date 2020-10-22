@@ -1,6 +1,6 @@
 from flask import current_app
 from itsdangerous import URLSafeTimedSerializer
-from itsdangerous.exc import BadTimeSignature
+from itsdangerous.exc import BadTimeSignature, BadSignature
 
 
 def generate_confirmation_token(username):
@@ -16,6 +16,6 @@ def confirm_token(token, expiration=3600):
             salt=current_app.config['SECURITY_PASSWORD_SALT'],
             max_age=expiration
         )
-    except BadTimeSignature:
+    except (BadTimeSignature, BadSignature):
         return False
     return username

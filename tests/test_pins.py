@@ -1,7 +1,6 @@
 import json
 
 from .setup import BasicTests, Method
-
 from models import Pin
 
 

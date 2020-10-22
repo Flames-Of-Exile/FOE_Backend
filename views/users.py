@@ -127,7 +127,7 @@ def Logout():
     return response
 
 
-@users.route('/confirm', methods=['POST'])
+@users.route('/confirm', methods=['PUT'])
 @jwt_required
 @is_discord_bot
 def ConfirmDiscord():
@@ -177,12 +177,9 @@ def ResetPassword(discord_id=0):
         response = jsonify(validation_result)
         response.status_code = 400
         return response
-    try:
-        user.password = sha256_crypt.encrypt(json['password'])
-        db.session.commit()
-        return jsonify(user.to_dict())
-    except IntegrityError as error:
-        return Response(error.args[0], status=400)
+    user.password = sha256_crypt.encrypt(json['password'])
+    db.session.commit()
+    return jsonify(user.to_dict())
 
 
 def PassComplexityCheck(password):
