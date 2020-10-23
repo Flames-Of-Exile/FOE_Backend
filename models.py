@@ -109,6 +109,7 @@ class Pin(db.Model, SerializerMixin):
         TACTICAL_HOUSE = 'tactical-house'
         TACTICAL_FIRE = 'tactical-fire'
         TACTICAL_FISH = 'tactical-fish'
+        NA = 'na'
 
     class Resource(enum.Enum):
         YEW = 'yew'
