@@ -36,12 +36,13 @@ class PinTests(BasicTests):
             'position_x': 2.0,
             'position_y': 2.5,
             'symbol': Pin.Symbol.GRAVE.value,
+            'resource': Pin.Resource.HUMAN.value,
             'rank': 10,
             'name': 'some name',
             'amount': 4,
             'respawn': 30,
-            'notes': 'some notes',
-            'resource': Pin.Resource.HUMAN.value
+            'notes': 'some notes'
+
         }
         old_pin = self.DEFAULT_PIN.to_dict()
         response = self.request('/api/pins/1', Method.PATCH, {'Authorization': self.DEFAULT_TOKEN}, json.dumps(data))
@@ -49,12 +50,13 @@ class PinTests(BasicTests):
         edit_details = (f"Position change from {old_pin['position_x']}/{old_pin['position_y']} "
                         f"to {data['position_x']}/{data['position_y']}\n"
                         f"Symbol changed from {old_pin['symbol']} to {data['symbol']}\n"
+                        f'Resource changed from {old_pin['resource']} to {data['resource']}\n')
                         f"Rank changed from {old_pin['rank']} to {data['rank']}\n"
                         f"Name changed from {old_pin['name']} to {data['name']}\n"
                         f"Amount changed from {old_pin['amount']} to {data['amount']}\n"
                         f"Respawn changed from {old_pin['respawn']} to {data['respawn']}\n"
-                        f"Notes changed from {old_pin['notes']} to {data['notes']}\n")
-                        f'Resource changed from {old_pin['resource']} to {data['resource']}\n')
+                        f"Notes changed from {old_pin['notes']} to {data['notes']}\n"
+
         res_data = response.get_json()
         self.assertEqual(res_data['edits'][0]['details'], edit_details)
         self.assertEqual(res_data['edits'][0]['user']['id'], 1)
