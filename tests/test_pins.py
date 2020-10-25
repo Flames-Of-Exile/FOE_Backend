@@ -21,10 +21,10 @@ class PinTests(BasicTests):
         self.assertEqual(self.DEFAULT_PIN.to_dict(), response.get_json())
 
     def test_create_success(self):
-        response = self.create_pin(self.DEFAULT_TOKEN, 5, 5, Pin.Symbol.ANIMAL.value, 1)
+        response = self.create_pin(self.DEFAULT_TOKEN, 5, 5, Pin.Symbol.ANIMAL.value, Pin.Resource.WOLF.value, 1)
         self.assertEqual(response.status_code, 201)
         data = response.get_json()
-        self.assertDictContainsSubset({'position_x': 5.0, 'position_y': 5.0, 'symbol': Pin.Symbol.ANIMAL.value}, data)
+        self.assertDictContainsSubset({'position_x': 5.0, 'position_y': 5.0, 'symbol': Pin.Symbol.ANIMAL.value, 'resource': Pin.Resource.WOLF.value}, data)
 
     def test_create_fail_invalid_world(self):
         response = self.create_pin(self.DEFAULT_TOKEN, 5, 5, Pin.Symbol.ANIMAL.value, 2)
@@ -40,7 +40,8 @@ class PinTests(BasicTests):
             'name': 'some name',
             'amount': 4,
             'respawn': 30,
-            'notes': 'some notes'
+            'notes': 'some notes',
+            'resource': Pin.Resource.HUMAN.value
         }
         old_pin = self.DEFAULT_PIN.to_dict()
         response = self.request('/api/pins/1', Method.PATCH, {'Authorization': self.DEFAULT_TOKEN}, json.dumps(data))
@@ -53,6 +54,7 @@ class PinTests(BasicTests):
                         f"Amount changed from {old_pin['amount']} to {data['amount']}\n"
                         f"Respawn changed from {old_pin['respawn']} to {data['respawn']}\n"
                         f"Notes changed from {old_pin['notes']} to {data['notes']}\n")
+                        f'Resource changed from {old_pin['resource']} to {data['resource']}\n')
         res_data = response.get_json()
         self.assertEqual(res_data['edits'][0]['details'], edit_details)
         self.assertEqual(res_data['edits'][0]['user']['id'], 1)
