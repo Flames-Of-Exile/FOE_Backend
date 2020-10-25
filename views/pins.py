@@ -25,6 +25,7 @@ def CreatePin():
             json['position_x'],
             json['position_y'],
             Pin.Symbol(json['symbol']),
+            Pin.Resource(json['resource']),
             json['world_id'] or None,
             json['rank'],
             json['name'],
@@ -66,6 +67,9 @@ def UpdatePin(id=0):
         if pin.symbol != json['symbol']:
             details += f'Symbol changed from {pin.symbol.value} to {json["symbol"]}\n'
             pin.symbol = Pin.Symbol(json['symbol'])
+        if pin.resource != json['resource']:
+            details += f'Resource changed from {pin.resource.value} to {json["resource"]}\n'
+            pin.resource = Pin.Resource(json['resource'])
         if pin.rank != json['rank']:
             details += f'Rank changed from {pin.rank} to {json["rank"]}\n'
             pin.rank = json['rank']

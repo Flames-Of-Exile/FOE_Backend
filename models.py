@@ -112,10 +112,40 @@ class Pin(db.Model, SerializerMixin):
         TACTICAL_FIRE = 'tactical-fire'
         TACTICAL_FISH = 'tactical-fish'
 
+    class Resource(enum.Enum):
+        YEW = 'yew'
+        BIRCH = 'birch'
+        ASH = 'ash'
+        OAK = 'oak'
+        SPRUCE = 'spruce'
+        COPPER = 'copper'
+        TIN = 'tin'
+        IRON = 'iron'
+        SILVER = 'silver'
+        AURELIUM = 'aurelium'
+        GRANITE = 'granite'
+        LIMESTONE = 'limestone'
+        TRAVERTINE = 'travertine'
+        SLATE = 'slate'
+        MARBLE = 'marble'
+        SPIDER = 'spider'
+        PIG = 'pig'
+        CAT = 'cat'
+        AUROCH = 'auroch'
+        ELK = 'elk'
+        WOLF = 'wolf'
+        HUMAN = 'human'
+        ELVEN = 'elven'
+        MONSTER = 'monster'
+        STONEBORN = 'stoneborn'
+        GUINECIAN = 'guinecian'
+        NA = 'na'
+
     id = db.Column(db.Integer, primary_key=True)
     position_x = db.Column(db.Float, nullable=False)
     position_y = db.Column(db.Float, nullable=False)
     symbol = db.Column(db.Enum(Symbol), nullable=False)
+    resource = db.Column(db.Enum(Resource), nullable=False)
     rank = db.Column(db.Integer)
     name = db.Column(db.String())
     amount = db.Column(db.Integer)
@@ -126,10 +156,11 @@ class Pin(db.Model, SerializerMixin):
 
     serialize_rules = ('-edits.pin',)
 
-    def __init__(self, position_x, position_y, symbol, world_id, rank, name, amount, respawn, notes):
+    def __init__(self, position_x, position_y, symbol, resource, world_id, rank, name, amount, respawn, notes):
         self.position_x = position_x
         self.position_y = position_y
         self.symbol = symbol
+        self.resource = resource
         self.world_id = world_id
         self.rank = rank
         self.name = name
