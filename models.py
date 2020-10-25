@@ -109,7 +109,7 @@ class Pin(db.Model, SerializerMixin):
         TACTICAL_HOUSE = 'tactical-house'
         TACTICAL_FIRE = 'tactical-fire'
         TACTICAL_FISH = 'tactical-fish'
-        NA = 'na'
+
 
     class Resource(enum.Enum):
         YEW = 'yew'
@@ -138,6 +138,7 @@ class Pin(db.Model, SerializerMixin):
         MONSTER = 'monster'
         STONEBORN = 'stoneborn'
         GUINECIAN = 'guinecian'
+        NA = 'na'
 
     id = db.Column(db.Integer, primary_key=True)
     position_x = db.Column(db.Float, nullable=False)
