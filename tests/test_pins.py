@@ -27,7 +27,7 @@ class PinTests(BasicTests):
         self.assertDictContainsSubset({'position_x': 5.0, 'position_y': 5.0, 'symbol': Pin.Symbol.ANIMAL.value, 'resource': Pin.Resource.WOLF.value}, data)
 
     def test_create_fail_invalid_world(self):
-        response = self.create_pin(self.DEFAULT_TOKEN, 5, 5, Pin.Symbol.ANIMAL.value, 2)
+        response = self.create_pin(self.DEFAULT_TOKEN, 5, 5, Pin.Symbol.ANIMAL.value, Pin.Resource.WOLF.value, 2)
         self.assertEqual(response.status_code, 400)
         self.assertIn(b'violates foreign key constraint "pins_world_id_fkey"', response.data)
 
@@ -50,12 +50,12 @@ class PinTests(BasicTests):
         edit_details = (f"Position change from {old_pin['position_x']}/{old_pin['position_y']} "
                         f"to {data['position_x']}/{data['position_y']}\n"
                         f"Symbol changed from {old_pin['symbol']} to {data['symbol']}\n"
-                        f'Resource changed from {old_pin['resource']} to {data['resource']}\n')
+                        f"Resource changed from {old_pin['resource']} to {data['resource']}\n"
                         f"Rank changed from {old_pin['rank']} to {data['rank']}\n"
                         f"Name changed from {old_pin['name']} to {data['name']}\n"
                         f"Amount changed from {old_pin['amount']} to {data['amount']}\n"
                         f"Respawn changed from {old_pin['respawn']} to {data['respawn']}\n"
-                        f"Notes changed from {old_pin['notes']} to {data['notes']}\n"
+                        f"Notes changed from {old_pin['notes']} to {data['notes']}\n")
 
         res_data = response.get_json()
         self.assertEqual(res_data['edits'][0]['details'], edit_details)
