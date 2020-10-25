@@ -24,7 +24,8 @@ class PinTests(BasicTests):
         response = self.create_pin(self.DEFAULT_TOKEN, 5, 5, Pin.Symbol.ANIMAL.value, Pin.Resource.WOLF.value, 1)
         self.assertEqual(response.status_code, 201)
         data = response.get_json()
-        self.assertDictContainsSubset({'position_x': 5.0, 'position_y': 5.0, 'symbol': Pin.Symbol.ANIMAL.value, 'resource': Pin.Resource.WOLF.value}, data)
+        self.assertDictContainsSubset({'position_x': 5.0, 'position_y': 5.0,
+                                       'symbol': Pin.Symbol.ANIMAL.value, 'resource': Pin.Resource.WOLF.value}, data)
 
     def test_create_fail_invalid_world(self):
         response = self.create_pin(self.DEFAULT_TOKEN, 5, 5, Pin.Symbol.ANIMAL.value, Pin.Resource.WOLF.value, 2)
