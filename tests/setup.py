@@ -71,7 +71,7 @@ class BasicTests(unittest.TestCase):
         db.session.add(world)
         db.session.commit()
 
-        pin = Pin(1, 1, Pin.Symbol.ANIMAL, 1, 1, '', 1, 1, 'notes')
+        pin = Pin(1, 1, Pin.Symbol.ANIMAL, Pin.Resource.WOLF, 1, 1, '', 1, 1, 'notes')
         db.session.add(pin)
         db.session.commit()
 
@@ -120,11 +120,13 @@ class BasicTests(unittest.TestCase):
         headers = {'Authorization': token}
         return self.request('/api/worlds', Method.POST, headers, data, 'multipart/form-data')
 
-    def create_pin(self, token, position_x, position_y, symbol, world_id, rank=0, name='', amount=0, respawn=0, notes=''):
+    def create_pin(self, token, position_x, position_y, symbol,
+                   resource, world_id, rank=0, name='', amount=0, respawn=0, notes=''):
         data = json.dumps({
             'position_x': position_x,
             'position_y': position_y,
             'symbol': symbol,
+            'resource': resource,
             'world_id': world_id,
             'rank': rank,
             'name': name,
