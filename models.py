@@ -156,7 +156,7 @@ class Pin(db.Model, SerializerMixin):
 
     serialize_rules = ('-edits.pin',)
 
-    def __init__(self, position_x, position_y, symbol, resource, 
+    def __init__(self, position_x, position_y, symbol, resource,
                  world_id, rank, name, amount, respawn, notes,
                  x_cord, y_cord):
         self.position_x = position_x
