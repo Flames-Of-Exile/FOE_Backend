@@ -153,10 +153,14 @@ class Pin(db.Model, SerializerMixin):
     respawn = db.Column(db.Integer)
     world_id = db.Column(db.Integer, db.ForeignKey('worlds.id'), nullable=False)
     edits = db.relationship('Edit', backref='pin', lazy=True, cascade='all, delete')
+    x_cord = db.Column(db.Float)
+    y_cord = db.Column(db.Float)
 
     serialize_rules = ('-edits.pin',)
 
-    def __init__(self, position_x, position_y, symbol, resource, world_id, rank, name, amount, respawn, notes):
+    def __init__(self, position_x, position_y, symbol, resource,
+                 world_id, rank, name, amount, respawn, notes,
+                 x_cord, y_cord):
         self.position_x = position_x
         self.position_y = position_y
         self.symbol = symbol
@@ -167,6 +171,8 @@ class Pin(db.Model, SerializerMixin):
         self.amount = amount
         self.respawn = respawn
         self.notes = notes
+        self.x_cord = x_cord
+        self.y_cord = y_cord
 
     def __repr__(self):
         return f'{self.id}: {self.symbol} - {self.position_x}/{self.position_y}'

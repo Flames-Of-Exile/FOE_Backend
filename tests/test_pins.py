@@ -20,7 +20,7 @@ class PinTests(BasicTests):
         self.assertEqual(self.DEFAULT_PIN.to_dict(), response.get_json())
 
     def test_create_success(self):
-        response = self.create_pin(self.DEFAULT_TOKEN, 5, 5, Pin.Symbol.ANIMAL.value, Pin.Resource.WOLF.value, 1)
+        response = self.create_pin(self.DEFAULT_TOKEN, 5, 5, Pin.Symbol.ANIMAL.value, Pin.Resource.WOLF.value, 1, 1, 1)
         self.assertEqual(response.status_code, 201)
         data = response.get_json()
         self.assertDictContainsSubset({'position_x': 5.0, 'position_y': 5.0,
@@ -41,7 +41,10 @@ class PinTests(BasicTests):
             'name': 'some name',
             'amount': 4,
             'respawn': 30,
-            'notes': 'some notes'
+            'notes': 'some notes',
+            'x_cord': 2,
+            'y_cord': 2
+
 
         }
         old_pin = self.DEFAULT_PIN.to_dict()
@@ -55,7 +58,9 @@ class PinTests(BasicTests):
                         f"Name changed from {old_pin['name']} to {data['name']}\n"
                         f"Amount changed from {old_pin['amount']} to {data['amount']}\n"
                         f"Respawn changed from {old_pin['respawn']} to {data['respawn']}\n"
-                        f"Notes changed from {old_pin['notes']} to {data['notes']}\n")
+                        f"Notes changed from {old_pin['notes']} to {data['notes']}\n"
+                        f"X Coordinate changed from {old_pin['x_cord']} to {data['x_cord']}\n"
+                        f"Y Coordinate changed from {old_pin['y_cord']} to {data['y_cord']}\n")
 
         res_data = response.get_json()
         self.assertEqual(res_data['edits'][0]['details'], edit_details)
