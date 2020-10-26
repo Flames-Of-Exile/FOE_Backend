@@ -31,7 +31,9 @@ def CreatePin():
             json['name'],
             json['amount'],
             json['respawn'],
-            json['notes']
+            json['notes'],
+            json['x_cord'],
+            json['y_cord']
             )
         db.session.add(newPin)
         db.session.commit()
@@ -85,6 +87,12 @@ def UpdatePin(id=0):
         if pin.notes != json['notes']:
             details += f'Notes changed from {pin.notes} to {json["notes"]}\n'
             pin.notes = json['notes']
+        if pin.x_cord != json['x_cord']:
+            details += f'X Coordinate changed from {pin.x_cord} to {json["x_cord"]}\n'
+            pin.x_cord = json['x_cord']
+        if pin.y_cord != json['y_cord']:
+            details += f'Y Coordinate changed from {pin.y_cord} to {json["y_cord"]}\n'
+            pin.y_cord = json['y_cord']
         db.session.commit()
         newEdit = Edit(details, pin.id, get_jwt_identity()['id'])
         db.session.add(newEdit)
