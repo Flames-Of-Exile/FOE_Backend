@@ -62,37 +62,23 @@ def UpdatePin(id=0):
     try:
         json = request.json
         details = ''
-        if pin.position_x != json['position_x'] or pin.position_y != json['position_y']:
-            details += f'Position change from {pin.position_x}/{pin.position_y} to {json["position_x"]}/{json["position_y"]}\n'
-        pin.position_x = json['position_x']
-        pin.position_y = json['position_y']
-        if pin.symbol != json['symbol']:
-            details += f'Symbol changed from {pin.symbol.value} to {json["symbol"]}\n'
-            pin.symbol = Pin.Symbol(json['symbol'])
-        if pin.resource != json['resource']:
-            details += f'Resource changed from {pin.resource.value} to {json["resource"]}\n'
-            pin.resource = Pin.Resource(json['resource'])
-        if pin.rank != json['rank']:
-            details += f'Rank changed from {pin.rank} to {json["rank"]}\n'
-            pin.rank = json['rank']
-        if pin.name != json['name']:
-            details += f'Name changed from {pin.name} to {json["name"]}\n'
-            pin.name = json['name']
-        if pin.amount != json['amount']:
-            details += f'Amount changed from {pin.amount} to {json["amount"]}\n'
-            pin.amount = json['amount']
-        if pin.respawn != json['respawn']:
-            details += f'Respawn changed from {pin.respawn} to {json["respawn"]}\n'
-            pin.respawn = json['respawn']
-        if pin.notes != json['notes']:
-            details += f'Notes changed from {pin.notes} to {json["notes"]}\n'
-            pin.notes = json['notes']
-        if pin.x_cord != json['x_cord']:
-            details += f'X Coordinate changed from {pin.x_cord} to {json["x_cord"]}\n'
-            pin.x_cord = json['x_cord']
-        if pin.y_cord != json['y_cord']:
-            details += f'Y Coordinate changed from {pin.y_cord} to {json["y_cord"]}\n'
-            pin.y_cord = json['y_cord']
+        PROPERTY_LIST = ['position_x', 'position_y', 'symbol', 'resource', 'rank', 'name',
+                         'amount', 'respawn', 'notes', 'x_cord', 'y_cord']
+        for prop in PROPERTY_LIST:
+            old_value = getattr(pin, prop)
+            enum = False
+            if hasattr(old_value, 'value'):
+                old_value = old_value.value
+                enum = True
+            if old_value != json[prop]:
+                details += f'{prop} changed from {old_value} to {json[prop]}\n'
+                if enum is True:
+                    if json[prop] in [item.value for item in Pin.Symbol]:
+                        setattr(pin, prop, Pin.Symbol(json[prop]))
+                    elif json[prop] in [item.value for item in Pin.Resource]:
+                        setattr(pin, prop, Pin.Resource(json[prop]))
+                else:
+                    setattr(pin, prop, json[prop])
         db.session.commit()
         newEdit = Edit(details, pin.id, get_jwt_identity()['id'])
         db.session.add(newEdit)

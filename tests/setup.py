@@ -84,6 +84,8 @@ class BasicTests(unittest.TestCase):
         self.DEFAULT_PIN = pin
         self.DEFAULT_TOKEN = f'Bearer {self.login("DiscordBot", "admin").get_json()["token"]}'
 
+        self.maxDiff = None
+
         self.assertEqual(app.debug, False)
 
     def tearDown(self):
