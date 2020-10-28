@@ -5,8 +5,9 @@ from flask_jwt_extended import create_access_token, create_refresh_token, decode
 from passlib.hash import sha256_crypt
 from sqlalchemy.exc import IntegrityError
 
+from discord_token import confirm_token, generate_confirmation_token
 from models import db, User
-from permissions import is_administrator, is_verified
+from permissions import is_administrator, is_discord_bot, is_verified
 
 users = Blueprint('users', __name__, url_prefix='/api/users')
 
@@ -30,7 +31,6 @@ def CreateUser():
         newUser = User(
             json['username'] or None,
             sha256_crypt.encrypt(json['password']) or None,
-            json['email'] or None,
             json['guild_id']
             )
         db.session.add(newUser)
@@ -81,7 +81,6 @@ def UpdateUser(id=0):
         json = request.json
         if 'password' in json.keys():
             user.password = sha256_crypt.encrypt(json['password']) or None
-        user.email = json['email'] or None
         user.theme = User.Theme(json['theme']) or None
         db.session.commit()
         return jsonify(user.to_dict())
@@ -101,7 +100,6 @@ def AdminUpdateUser(id=0):
         if ('password' in json.keys()):
             user.password = sha256_crypt.encrypt(json['password'])
         user.guild_id = json['guild_id']
-        user.email = json['email'] or None
         user.is_active = json['is_active']
         user.role = User.Role(json['role']) or None
         db.session.commit()
@@ -127,6 +125,61 @@ def Logout():
     response = Response("")
     response.delete_cookie('refresh_token')
     return response
+
+
+@users.route('/confirm', methods=['PUT'])
+@jwt_required
+@is_discord_bot
+def ConfirmDiscord():
+    json = request.json
+    user = User.query.filter_by(username=json['username']).first_or_404()
+    token = json['token']
+    if user.discord_confirmed is True:
+        return Response('user has already confirmed their discord', status=400)
+    username = confirm_token(token)
+    if username == user.username:
+        try:
+            user.discord_confirmed = True
+            user.discord = json['discord']
+            db.session.commit()
+            return jsonify(user.to_dict())
+        except IntegrityError as error:
+            return Response(error.args[0], status=400)
+    return Response('invalid user/token', status=400)
+
+
+@users.route('/discord-token', methods=['GET'])
+@jwt_required
+def ResendConfirmation():
+    user = User.query.get(get_jwt_identity()['id'])
+    if user.discord_confirmed is True:
+        return Response('user has already confirmed their discord', status=400)
+    token = generate_confirmation_token(user.username)
+    return jsonify({'token': token})
+
+
+@users.route('/discord/<discord_id>', methods=['GET'])
+@jwt_required
+@is_discord_bot
+def GetUserByDiscord(discord_id=0):
+    user = User.query.filter_by(discord=discord_id).first_or_404()
+    return jsonify(user.to_dict())
+
+
+@users.route('/password-reset/<discord_id>', methods=['PATCH'])
+@jwt_required
+@is_discord_bot
+def ResetPassword(discord_id=0):
+    user = User.query.filter_by(discord=discord_id).first_or_404()
+    json = request.json
+    validation_result = PassComplexityCheck(json['password'])
+    if validation_result['password_ok'] is False:
+        response = jsonify(validation_result)
+        response.status_code = 400
+        return response
+    user.password = sha256_crypt.encrypt(json['password'])
+    db.session.commit()
+    return jsonify(user.to_dict())
 
 
 def PassComplexityCheck(password):

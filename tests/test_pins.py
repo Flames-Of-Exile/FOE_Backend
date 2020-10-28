@@ -1,7 +1,6 @@
 import json
 
 from .setup import BasicTests, Method
-
 from models import Pin
 
 
@@ -45,23 +44,22 @@ class PinTests(BasicTests):
             'notes': 'some notes',
             'x_cord': 2,
             'y_cord': 2
-
-
         }
+
         old_pin = self.DEFAULT_PIN.to_dict()
         response = self.request('/api/pins/1', Method.PATCH, {'Authorization': self.DEFAULT_TOKEN}, json.dumps(data))
         self.assertEqual(response.status_code, 200)
-        edit_details = (f"Position change from {old_pin['position_x']}/{old_pin['position_y']} "
-                        f"to {data['position_x']}/{data['position_y']}\n"
-                        f"Symbol changed from {old_pin['symbol']} to {data['symbol']}\n"
-                        f"Resource changed from {old_pin['resource']} to {data['resource']}\n"
-                        f"Rank changed from {old_pin['rank']} to {data['rank']}\n"
-                        f"Name changed from {old_pin['name']} to {data['name']}\n"
-                        f"Amount changed from {old_pin['amount']} to {data['amount']}\n"
-                        f"Respawn changed from {old_pin['respawn']} to {data['respawn']}\n"
-                        f"Notes changed from {old_pin['notes']} to {data['notes']}\n"
-                        f"X Coordinate changed from {old_pin['x_cord']} to {data['x_cord']}\n"
-                        f"Y Coordinate changed from {old_pin['y_cord']} to {data['y_cord']}\n")
+        edit_details = (f"position_x changed from {old_pin['position_x']} to {data['position_x']}\n"
+                        f"position_y changed from {old_pin['position_y']} to {data['position_y']}\n"
+                        f"symbol changed from {old_pin['symbol']} to {data['symbol']}\n"
+                        f"resource changed from {old_pin['resource']} to {data['resource']}\n"
+                        f"rank changed from {old_pin['rank']} to {data['rank']}\n"
+                        f"name changed from {old_pin['name']} to {data['name']}\n"
+                        f"amount changed from {old_pin['amount']} to {data['amount']}\n"
+                        f"respawn changed from {old_pin['respawn']} to {data['respawn']}\n"
+                        f"notes changed from {old_pin['notes']} to {data['notes']}\n"
+                        f"x_cord changed from {old_pin['x_cord']} to {data['x_cord']}\n"
+                        f"y_cord changed from {old_pin['y_cord']} to {data['y_cord']}\n")
 
         res_data = response.get_json()
         self.assertEqual(res_data['edits'][0]['details'], edit_details)

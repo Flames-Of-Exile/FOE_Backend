@@ -13,6 +13,8 @@ def create_app():
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = 300  # 5 minutes
     app.config['JWT_REFRESH_TOKEN_EXPIRES'] = 86400  # 1 day
 
+    app.config['SECURITY_PASSWORD_SALT'] = os.environ['SECURITY_PASSWORD_SALT']
+
     from models import db
     db.init_app(app)
 

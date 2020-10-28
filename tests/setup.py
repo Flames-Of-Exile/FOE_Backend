@@ -26,6 +26,7 @@ class BasicTests(unittest.TestCase):
         app.config['SECRET_KEY'] = "SUPER-SECRET"
         app.config['JWT_ACCESS_TOKEN_EXPIRES'] = 300  # 5 minutes
         app.config['JWT_REFRESH_TOKEN_EXPIRES'] = 86400  # 1 day
+        app.config['SECURITY_PASSWORD_SALT'] = 'super-secret'
 
         app.config['TESTING'] = True
         app.config['WTF_CSRF_ENABLED'] = False
@@ -59,7 +60,8 @@ class BasicTests(unittest.TestCase):
         db.session.commit()
         foe_guild = db.session.query(Guild).filter_by(name='Flames of Exile').first()
 
-        admin = User('admin', sha256_crypt.encrypt('admin'), 'email@email.com', foe_guild.id, User.Role.ADMIN)
+        admin = User('DiscordBot', sha256_crypt.encrypt('admin'), foe_guild.id, User.Role.ADMIN)
+        admin.discord_confirmed = True
         db.session.add(admin)
         db.session.commit()
 
@@ -80,7 +82,9 @@ class BasicTests(unittest.TestCase):
         self.DEFAULT_CAMPAIGN = campaign
         self.DEFAULT_WORLD = world
         self.DEFAULT_PIN = pin
-        self.DEFAULT_TOKEN = f'Bearer {self.login("admin", "admin").get_json()["token"]}'
+        self.DEFAULT_TOKEN = f'Bearer {self.login("DiscordBot", "admin").get_json()["token"]}'
+
+        self.maxDiff = None
 
         self.assertEqual(app.debug, False)
 
@@ -103,8 +107,8 @@ class BasicTests(unittest.TestCase):
         data = json.dumps({'username': username, 'password': password})
         return self.request('/api/users/login', Method.POST, {}, data)
 
-    def register(self, username, password, email, guild_id):
-        data = json.dumps({'username': username, 'password': password, 'email': email, 'guild_id': guild_id})
+    def register(self, username, password, guild_id):
+        data = json.dumps({'username': username, 'password': password, 'guild_id': guild_id})
         return self.request('/api/users', Method.POST, {}, data)
 
     def logout(self):

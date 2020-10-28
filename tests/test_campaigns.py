@@ -1,7 +1,6 @@
 import io
 
 from .setup import BasicTests, Method
-
 from models import Campaign
 
 

@@ -26,23 +26,25 @@ class User(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(), nullable=False, unique=True)
     password = db.Column(db.String(), nullable=False)
-    email = db.Column(db.String(), nullable=False, unique=True)
+    discord = db.Column(db.String(), unique=True)
     is_active = db.Column(db.Boolean(), nullable=False)
     role = db.Column(db.Enum(Role), nullable=False)
     theme = db.Column(db.Enum(Theme), nullable=False)
+    discord_confirmed = db.Column(db.Boolean(), nullable=False)
     edits = db.relationship('Edit', backref='user', lazy=True)
     guild_id = db.Column(db.Integer, db.ForeignKey('guilds.id'), nullable=False)
 
-    serialize_only = ('id', 'username', 'email', 'is_active', 'role', 'theme', 'edits.id',
+    serialize_only = ('id', 'username', 'is_active', 'role', 'theme', 'edits.id', 'discord_confirmed',
                       'guild.id', 'guild.name', 'guild.is_active')
 
-    def __init__(self, username, password, email, guild_id, role=Role.GUEST):
+    def __init__(self, username, password, guild_id, role=Role.GUEST):
         self.username = username
         self.password = password
-        self.email = email
+        self.discord = None
         self.is_active = True
         self.role = role
         self.theme = User.Theme.DEFAULT
+        self.discord_confirmed = False
         self.guild_id = guild_id
 
     def __repr__(self):
