@@ -43,6 +43,7 @@ COPY ./entrypoint.prod.sh /usr/src/app/entrypoint.prod.sh
 
 #setting file permissions
 RUN chmod 700 /usr/src/app/entrypoint.prod.sh
+RUN chmod +x /usr/src/app/entrypoint.prod.sh
 
 # copy project
 COPY . /usr/src/app/
