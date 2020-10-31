@@ -3,7 +3,7 @@ from flask_jwt_extended import jwt_required
 from sqlalchemy.exc import IntegrityError
 from werkzeug.utils import secure_filename
 
-from models import db, World
+from models import db, Campaign, World
 from permissions import is_administrator, is_verified
 from upload import allowed_file
 
@@ -69,3 +69,14 @@ def UpdateWorld(id=0):
         return jsonify(world.to_dict())
     except IntegrityError as error:
         return Response(error.args[0], status=400)
+
+
+@worlds.route('/q', methods=['GET'])
+@jwt_required
+@is_verified
+def NameQuery():
+    campaign_name = request.args.get('campaign')
+    world_name = request.args.get('world')
+    return jsonify(World.query.join(Campaign)
+                   .filter(Campaign.name == campaign_name, World.name == world_name)
+                   .first_or_404().to_dict())

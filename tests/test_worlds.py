@@ -57,3 +57,9 @@ class WorldTests(BasicTests):
         self.assertEqual(response.status_code, 200)
         data = response.get_json()
         self.assertDictContainsSubset({'image': '/mediafiles/updatedname.png', 'name': 'updated_name'}, data)
+
+    def test_query_name(self):
+        response = self.request(f'/api/worlds/q?campaign={self.DEFAULT_CAMPAIGN.name}&world={self.DEFAULT_WORLD.name}',
+                                headers={'Authorization': self.DEFAULT_TOKEN})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.DEFAULT_WORLD.to_dict(), response.get_json())
