@@ -39,7 +39,7 @@ def CreateUser():
         data['user'] = newUser.to_dict()
         data['token'] = create_access_token(identity=newUser.to_dict())
         data = jsonify(data)
-        data.set_cookie('refresh_token', create_refresh_token(identity=newUser.to_dict()), httponly=True)
+        data.set_cookie('refresh_token', create_refresh_token(identity=newUser.to_dict()), httponly=True, secure=True)
         data.status_code = 201
         return data
     except IntegrityError as error:
@@ -56,7 +56,7 @@ def Login():
             data['user'] = user.to_dict()
             data['token'] = create_access_token(identity=user.to_dict())
             response = jsonify(data)
-            response.set_cookie('refresh_token', create_refresh_token(identity=user.to_dict()), httponly=True)
+            response.set_cookie('refresh_token', create_refresh_token(identity=user.to_dict()), httponly=True, secure=True)
             return response
         else:
             return Response('invalid username/password', status=400)

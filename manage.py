@@ -4,8 +4,9 @@ from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 from passlib.hash import sha256_crypt
 
-from app import create_app
+from app import create_app, socketio
 from models import db, Guild, User
+import socketevents  # noqa: F401
 
 app = create_app()
 
@@ -25,6 +26,11 @@ def create_admin():
     admin.discord_confirmed = True
     db.session.add(admin)
     db.session.commit()
+
+
+@manager.command
+def run():
+    socketio.run(app, host='0.0.0.0', port=5000, use_reloader=True, debug=True)
 
 
 if __name__ == '__main__':
