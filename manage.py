@@ -5,10 +5,11 @@ from flask_migrate import Migrate, MigrateCommand
 from passlib.hash import sha256_crypt
 
 from app import create_app, socketio
+from config import main_config
 from models import db, Guild, User
 import socketevents  # noqa: F401
 
-app = create_app()
+app = create_app(main_config)
 
 migrate = Migrate(app, db)
 manager = Manager(app)
