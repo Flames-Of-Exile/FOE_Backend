@@ -33,7 +33,7 @@ RUN addgroup -S app && adduser -S app -G app
 WORKDIR /usr/src/app
 
 # install dependencies
-RUN apk update && apk add postgresql-libs
+RUN apk update && apk add postgresql-libs gcc musl-dev
 COPY --from=builder /usr/src/app/wheels /wheels
 RUN pip install --upgrade pip
 RUN pip install --no-cache /wheels/*

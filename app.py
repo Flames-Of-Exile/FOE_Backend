@@ -1,11 +1,17 @@
 import os
 
 from flask import Flask
+from flask_cors import CORS
 from flask_jwt_extended import JWTManager
+from flask_socketio import SocketIO
+
+socketio = SocketIO()
 
 
 def create_app():
     app = Flask(__name__)
+    CORS(app)
+
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 
@@ -30,6 +36,7 @@ def create_app():
     app.register_blueprint(worlds)
 
     JWTManager(app)
+    socketio.init_app(app, cors_allowed_origins=os.environ['FRONTEND_URL'])
 
     return app
 
