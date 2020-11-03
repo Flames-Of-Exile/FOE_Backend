@@ -49,6 +49,7 @@ jobs:
       env:
         DATABASE_URL: .
         SECURITY_PASSWORD_SALT: .
+        SECRET_KEY: .
       run: |
         mkdir -p /usr/src/app/mediafiles
         coverage run unit_test.py
