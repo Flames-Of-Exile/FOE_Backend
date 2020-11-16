@@ -8,18 +8,11 @@ from flask_socketio import SocketIO
 socketio = SocketIO()
 
 
-def create_app():
+def create_app(config):
     app = Flask(__name__)
     CORS(app)
 
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
-
-    app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
-    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = 300  # 5 minutes
-    app.config['JWT_REFRESH_TOKEN_EXPIRES'] = 86400  # 1 day
-
-    app.config['SECURITY_PASSWORD_SALT'] = os.environ['SECURITY_PASSWORD_SALT']
+    app.config.update(config)
 
     from models import db
     db.init_app(app)
