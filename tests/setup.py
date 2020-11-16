@@ -69,7 +69,7 @@ class BasicTests(unittest.TestCase):
         db.session.add(campaign)
         db.session.commit()
 
-        world = World('world_name', '/mediafiles/world.png', 1)
+        world = World('world_name', '/mediafiles/world.png', 1, 1, 1, 1)
         db.session.add(world)
         db.session.commit()
 
@@ -119,8 +119,9 @@ class BasicTests(unittest.TestCase):
         headers = {'Authorization': token}
         return self.request('/api/campaigns', Method.POST, headers, data, 'multipart/form-data')
 
-    def create_world(self, token, name, filename, campaign_id):
-        data = {'name': name, 'campaign_id': campaign_id, 'file': (io.BytesIO(b'mockdata'), filename)}
+    def create_world(self, token, name, filename, center_lng, center_lat, radius, campaign_id):
+        data = {'name': name, 'campaign_id': campaign_id, 'file': (io.BytesIO(b'mockdata'), filename),
+                'center_lng': center_lng, 'center_lat': center_lat, 'radius': radius}
         headers = {'Authorization': token}
         return self.request('/api/worlds', Method.POST, headers, data, 'multipart/form-data')
 

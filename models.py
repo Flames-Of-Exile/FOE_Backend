@@ -79,14 +79,20 @@ class World(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(), nullable=False)
     image = db.Column(db.String(), nullable=False, unique=True)
+    center_lat = db.Column(db.Float, nullable=False)
+    center_lng = db.Column(db.Float, nullable=False)
+    radius = db.Column(db.Float, nullable=False)
     campaign_id = db.Column(db.Integer, db.ForeignKey('campaigns.id'), nullable=False)
     pins = db.relationship('Pin', backref='world', lazy=True)
 
     serialize_rules = ('-campaign_id', '-pins.world')
 
-    def __init__(self, name, image, campaign_id):
+    def __init__(self, name, image, center_lat, center_lng, radius, campaign_id):
         self.name = name
         self.image = image
+        self.center_lat = center_lat
+        self.center_lng = center_lng
+        self.radius = radius
         self.campaign_id = campaign_id
 
     def __repr__(self):

@@ -42,7 +42,7 @@ class PinTests(BasicTests):
             'amount': 4,
             'respawn': 30,
             'notes': 'some notes',
-            'x_cord': 2,
+            'x_cord': 'x',
             'y_cord': 2
         }
 

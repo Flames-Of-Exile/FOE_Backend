@@ -20,29 +20,29 @@ class WorldTests(BasicTests):
         self.assertEqual(self.DEFAULT_WORLD.to_dict(), response.get_json())
 
     def test_create_success(self):
-        world = World('new', '/mediafiles/file.jpg', 1)
+        world = World('new', '/mediafiles/file.jpg', 1, 1, 1, 1)
         world.id = 2
         world = world.to_dict()
         del world['campaign']
 
-        response = self.create_world(self.DEFAULT_TOKEN, 'new', 'file.jpg', 1)
+        response = self.create_world(self.DEFAULT_TOKEN, 'new', 'file.jpg', 1, 1, 1, 1)
 
         self.assertEqual(response.status_code, 201)
         json = response.get_json()
         self.assertDictContainsSubset(world, json)
 
     def test_create_fail_unique_filename(self):
-        response = self.create_world(self.DEFAULT_TOKEN, 'new', 'world.png', 1)
+        response = self.create_world(self.DEFAULT_TOKEN, 'new', 'world.png', 1, 1, 1, 1)
         self.assertEqual(response.status_code, 400)
         self.assertIn(b'duplicate key value violates unique constraint "worlds_image_key"', response.data)
 
     def test_create_fail_invalid_extension(self):
-        response = self.create_world(self.DEFAULT_TOKEN, 'new', 'file.pdf', 1)
+        response = self.create_world(self.DEFAULT_TOKEN, 'new', 'file.pdf', 1, 1, 1, 1)
         self.assertEqual(response.status_code, 400)
         self.assertIn(b'invalid file type', response.data)
 
     def test_create_fail_invalid_campaign(self):
-        response = self.create_world(self.DEFAULT_TOKEN, 'new', 'file.jpg', 2)
+        response = self.create_world(self.DEFAULT_TOKEN, 'new', 'file.jpg', 1, 1, 1, 2)
         self.assertEqual(response.status_code, 400)
         self.assertIn(b'violates foreign key constraint "worlds_campaign_id_fkey"', response.data)
 
@@ -50,7 +50,10 @@ class WorldTests(BasicTests):
         data = {
             'file': ((io.BytesIO(b'mockdata')), 'updatedname.png'),
             'name': 'updated_name',
-            'campaign_id': 1
+            'campaign_id': 1,
+            'center_lat': 1,
+            'center_lng': 1,
+            'radius': 1
         }
         response = self.request('/api/worlds/1', Method.PATCH, {'Authorization': self.DEFAULT_TOKEN}, data,
                                 'multipart/form-data')

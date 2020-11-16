@@ -1,9 +1,8 @@
-# flake8: noqa
 """empty message
 
-Revision ID: 1e16a3016f95
+Revision ID: 830e546d7562
 Revises: 
-Create Date: 2020-10-26 23:47:10.637584
+Create Date: 2020-11-16 20:07:28.342714
 
 """
 from alembic import op
@@ -11,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '1e16a3016f95'
+revision = '830e546d7562'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -55,6 +54,9 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(), nullable=False),
     sa.Column('image', sa.String(), nullable=False),
+    sa.Column('center_lat', sa.Float(), nullable=False),
+    sa.Column('center_lng', sa.Float(), nullable=False),
+    sa.Column('radius', sa.Float(), nullable=False),
     sa.Column('campaign_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['campaign_id'], ['campaigns.id'], ),
     sa.PrimaryKeyConstraint('id'),
@@ -72,7 +74,7 @@ def upgrade():
     sa.Column('notes', sa.String(), nullable=True),
     sa.Column('respawn', sa.Integer(), nullable=True),
     sa.Column('world_id', sa.Integer(), nullable=False),
-    sa.Column('x_cord', sa.Float(), nullable=True),
+    sa.Column('x_cord', sa.String(length=1), nullable=True),
     sa.Column('y_cord', sa.Float(), nullable=True),
     sa.ForeignKeyConstraint(['world_id'], ['worlds.id'], ),
     sa.PrimaryKeyConstraint('id')
