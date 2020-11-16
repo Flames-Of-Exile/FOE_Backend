@@ -1,9 +1,8 @@
-# flake8: noqa
 """empty message
 
-Revision ID: 1e16a3016f95
+Revision ID: 7651b014bc1e
 Revises: 
-Create Date: 2020-10-26 23:47:10.637584
+Create Date: 2020-11-15 22:21:30.884374
 
 """
 from alembic import op
@@ -11,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '1e16a3016f95'
+revision = '7651b014bc1e'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -72,7 +71,7 @@ def upgrade():
     sa.Column('notes', sa.String(), nullable=True),
     sa.Column('respawn', sa.Integer(), nullable=True),
     sa.Column('world_id', sa.Integer(), nullable=False),
-    sa.Column('x_cord', sa.Float(), nullable=True),
+    sa.Column('x_cord', sa.String(length=1), nullable=True),
     sa.Column('y_cord', sa.Float(), nullable=True),
     sa.ForeignKeyConstraint(['world_id'], ['worlds.id'], ),
     sa.PrimaryKeyConstraint('id')
