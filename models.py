@@ -153,7 +153,7 @@ class Pin(db.Model, SerializerMixin):
     respawn = db.Column(db.Integer)
     world_id = db.Column(db.Integer, db.ForeignKey('worlds.id'), nullable=False)
     edits = db.relationship('Edit', backref='pin', lazy=True, cascade='all, delete')
-    x_cord = db.Column(db.Float)
+    x_cord = db.Column(db.String(1))
     y_cord = db.Column(db.Float)
 
     serialize_rules = ('-edits.pin',)
