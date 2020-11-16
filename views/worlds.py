@@ -31,6 +31,9 @@ def CreateWorld():
         newWorld = World(
             request.form['name'] or None,
             f'/mediafiles/{secure_filename(file.filename)}',
+            request.form['center_lat'],
+            request.form['center_lng'],
+            request.form['radius'],
             request.form['campaign_id'] or None
             )
         db.session.add(newWorld)
@@ -63,6 +66,9 @@ def UpdateWorld(id=0):
     try:
         world.name = request.form['name'] or None
         world.image = f'/mediafiles/{secure_filename(file.filename)}'
+        world.center_lat = request.form['center_lat']
+        world.center_lng = request.form['center_lng']
+        world.radius = request.form['radius']
         world.campaign_id = request.form['campaign_id'] or None
         db.session.commit()
         file.save(f'/usr/src/app{world.image}')
