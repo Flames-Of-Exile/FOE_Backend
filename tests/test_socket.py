@@ -1,11 +1,11 @@
 import json
 import unittest
 
-from flask import Flask
-from flask_jwt_extended import JWTManager
 from flask_socketio import SocketIO
 from passlib.hash import sha256_crypt
 
+from app import create_app
+from config import test_config
 from models import db, Campaign, Guild, User
 from socketevents import handle_campaign_update, on_connect
 
@@ -13,25 +13,9 @@ from socketevents import handle_campaign_update, on_connect
 class SocketTests(unittest.TestCase):
 
     def setUp(self):
-        app = Flask(__name__)
-        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-        app.config['SECRET_KEY'] = "SUPER-SECRET"
-        app.config['JWT_ACCESS_TOKEN_EXPIRES'] = 300  # 5 minutes
-        app.config['JWT_REFRESH_TOKEN_EXPIRES'] = 86400  # 1 day
-        app.config['SECURITY_PASSWORD_SALT'] = 'super-secret'
-
-        app.config['TESTING'] = True
-        app.config['WTF_CSRF_ENABLED'] = False
-        app.config['DEBUG'] = False
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://flamesofexile:flamesofexile@test-db:5432/flamesofexile'
-
-        from views.users import users
-        app.register_blueprint(users)
-
-        JWTManager(app)
+        app = create_app(test_config)
 
         with app.app_context():
-            db.init_app(app)
             db.drop_all()
             db.create_all()
 
