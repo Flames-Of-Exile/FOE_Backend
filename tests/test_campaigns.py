@@ -1,4 +1,4 @@
-import io
+import io, json
 
 from .setup import BasicTests, Method
 from models import Campaign
@@ -51,27 +51,24 @@ class CampaignTests(BasicTests):
         self.assertIn(b'invalid file type', response.data)
 
     def test_update(self):
-        data = {
-            'is_default': 'true',
-            'is_archived': 'false',
-            'name': 'updated_name',
-            'file': ((io.BytesIO(b'mockdata'), 'updated.png'))
-        }
-        response = self.request('/api/campaigns/1', Method.PATCH, {'Authorization': self.DEFAULT_TOKEN}, data,
-                                'multipart/form-data')
+        data = json.dumps({
+            'is_default': True,
+            'is_archived': False,
+            'name': 'updated_name'
+        })
+        response = self.request('/api/campaigns/1', Method.PATCH, {'Authorization': self.DEFAULT_TOKEN}, data)
         self.assertEqual(response.status_code, 200)
         self.assertDictContainsSubset({'is_default': True, 'is_archived': False,
-                                       'name': 'updated_name', 'image': '/mediafiles/updated.png'},
+                                       'name': 'updated_name', 'image': '/mediafiles/campaign.png'},
                                       response.get_json())
 
     def test_list_archived(self):
-        data = {
-            'is_default': 'false',
-            'is_archived': 'true',
-            'name': 'campaign_name',
-            'file': ((io.BytesIO(b'mockdata'), 'campaign.png'))
-        }
-        self.request('/api/campaigns/1', Method.PATCH, {'Authorization': self.DEFAULT_TOKEN}, data, 'multipart/form-data')
+        data = json.dumps({
+            'is_default': False,
+            'is_archived': True,
+            'name': 'campaign_name'
+        })
+        self.request('/api/campaigns/1', Method.PATCH, {'Authorization': self.DEFAULT_TOKEN}, data)
         response = self.request('/api/campaigns/archived', headers={'Authorization': self.DEFAULT_TOKEN})
         self.assertEqual(response.status_code, 200)
         data = response.get_json()
@@ -81,13 +78,12 @@ class CampaignTests(BasicTests):
                                       data[0])
 
     def test_list_no_archived(self):
-        data = {
-            'is_default': 'false',
-            'is_archived': 'true',
-            'name': 'campaign_name',
-            'file': ((io.BytesIO(b'mockdata'), 'campaign.png'))
-        }
-        self.request('/api/campaigns/1', Method.PATCH, {'Authorization': self.DEFAULT_TOKEN}, data, 'multipart/form-data')
+        data = json.dumps({
+            'is_default': False,
+            'is_archived': True,
+            'name': 'campaign_name'
+        })
+        self.request('/api/campaigns/1', Method.PATCH, {'Authorization': self.DEFAULT_TOKEN}, data)
         response = self.request('/api/campaigns', headers={'Authorization': self.DEFAULT_TOKEN})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.get_json()), 0)

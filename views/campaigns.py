@@ -57,24 +57,19 @@ def RetrieveCampaign(id=0):
 @is_administrator
 def UpdateCampaign(id=0):
     campaign = Campaign.query.get_or_404(id)
-    if 'file' not in request.files:
-        return Response('no file found', status=400)
-    file = request.files['file']
-    if not allowed_file(file.filename):
-        return Response('invalid file type', status=400)
     try:
-        campaign.name = request.form['name'] or None
-        campaign.is_archived = request.form['is_archived'] == 'true'
-        if (request.form['is_default'] == 'true'):
+        json = request.json
+        print(json)
+        campaign.name = json['name'] or None
+        campaign.is_archived = json['is_archived']
+        if (json['is_default'] == True):
             old_default = Campaign.query.filter_by(is_default=True).all()
             for camp in old_default:
                 camp.is_default = False
             campaign.is_default = True
         else:
             campaign.is_default = False
-        campaign.image = f'/mediafiles/{secure_filename(file.filename)}'
         db.session.commit()
-        file.save(f'/usr/src/app{campaign.image}')
         return jsonify(campaign.to_dict())
     except IntegrityError as error:
         return Response(error.args[0], status=400)
