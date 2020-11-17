@@ -1,4 +1,4 @@
-import io, json
+import json
 
 from .setup import BasicTests, Method
 from models import Campaign

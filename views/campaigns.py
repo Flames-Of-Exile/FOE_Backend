@@ -30,7 +30,7 @@ def CreateCampaign():
         return Response('invalid file type', status=400)
     try:
         newCampaign = Campaign(request.form['name'] or None, f'/mediafiles/{secure_filename(file.filename)}')
-        if (request.form['is_default'] == 'true'):
+        if request.form['is_default'] == 'true':
             old_default = Campaign.query.filter_by(is_default=True).all()
             for camp in old_default:
                 camp.is_default = False
@@ -59,10 +59,9 @@ def UpdateCampaign(id=0):
     campaign = Campaign.query.get_or_404(id)
     try:
         json = request.json
-        print(json)
         campaign.name = json['name'] or None
         campaign.is_archived = json['is_archived']
-        if (json['is_default'] == True):
+        if json['is_default'] is True:
             old_default = Campaign.query.filter_by(is_default=True).all()
             for camp in old_default:
                 camp.is_default = False
