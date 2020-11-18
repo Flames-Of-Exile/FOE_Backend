@@ -145,7 +145,7 @@ def ConfirmDiscord():
             user.discord_confirmed = True
             user.discord = json['discord']
             db.session.commit()
-            request = request.post('flamesofexile.com/verified', data = {'token' : _SITE_TOKEN})
+            requests.post('flamesofexile.com/verified', data = {'token' : _SITE_TOKEN})
             return jsonify(user.to_dict())
         except IntegrityError as error:
             return Response(error.args[0], status=400)
