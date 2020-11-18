@@ -20,7 +20,7 @@ def ListWorlds():
 
 @worlds.route('', methods=['POST'])
 @jwt_required
-@is_administrator
+@is_verified
 def CreateWorld():
     if 'file' not in request.files:
         return Response('no file found', status=400)
