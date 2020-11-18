@@ -1,4 +1,6 @@
 import re
+import requests
+import os
 
 from flask import Blueprint, jsonify, request, Response
 from flask_jwt_extended import create_access_token, create_refresh_token, decode_token, get_jwt_identity, jwt_required
@@ -10,6 +12,7 @@ from models import db, User
 from permissions import is_administrator, is_discord_bot, is_verified
 
 users = Blueprint('users', __name__, url_prefix='/api/users')
+_SITE_TOKEN = os.getenv(SITE_TOKEN)
 
 
 @users.route('', methods=['GET'])
@@ -142,6 +145,7 @@ def ConfirmDiscord():
             user.discord_confirmed = True
             user.discord = json['discord']
             db.session.commit()
+            request.post('flamesofexile.com/verified', data = {'token' : _SITE_TOKEN})
             return jsonify(user.to_dict())
         except IntegrityError as error:
             return Response(error.args[0], status=400)
