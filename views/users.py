@@ -13,6 +13,7 @@ from permissions import is_administrator, is_discord_bot, is_verified
 
 users = Blueprint('users', __name__, url_prefix='/api/users')
 _SITE_TOKEN = os.getenv('SITE_TOKEN')
+_BASE_URL = os.getenv('BASE_URL')
 
 
 @users.route('', methods=['GET'])
@@ -145,7 +146,7 @@ def ConfirmDiscord():
             user.discord_confirmed = True
             user.discord = json['discord']
             db.session.commit()
-            requests.post('flamesofexile.com/verified', data = {'token' : _SITE_TOKEN})
+            requests.post(_BASE_URL, data = {'token' : _SITE_TOKEN})
             return jsonify(user.to_dict())
         except IntegrityError as error:
             return Response(error.args[0], status=400)
