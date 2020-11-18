@@ -13,3 +13,4 @@ itsdangerous==1.1.0
 passlib==1.7.4
 Psycopg2==2.8.3
 SQLAlchemy-serializer==1.3.4.2
+requests
