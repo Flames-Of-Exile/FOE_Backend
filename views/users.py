@@ -13,7 +13,7 @@ from permissions import is_administrator, is_discord_bot, is_verified
 
 users = Blueprint('users', __name__, url_prefix='/api/users')
 _SITE_TOKEN = os.getenv('SITE_TOKEN')
-_BASE_URL = os.getenv('BASE_URL')
+_BASE_URL = os.getenv('FRONTEND_URL')
 
 
 @users.route('', methods=['GET'])
