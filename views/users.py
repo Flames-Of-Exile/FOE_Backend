@@ -134,7 +134,7 @@ def Logout():
 @users.route('/confirm', methods=['PUT'])
 @jwt_required
 @is_discord_bot
-async def ConfirmDiscord():
+def ConfirmDiscord():
     json = request.json
     user = User.query.filter_by(username=json['username']).first_or_404()
     token = json['token']
