@@ -146,10 +146,13 @@ def ConfirmDiscord():
             user.discord_confirmed = True
             user.discord = json['discord']
             db.session.commit()
-            requests.post(_BASE_URL + '//bot/verified', data = {'token' : _SITE_TOKEN}, verify=VERIFY_SSL)
-            return jsonify(user.to_dict())
         except IntegrityError as error:
             return Response(error.args[0], status=400)
+        try:
+            requests.post(_BASE_URL + '/bot/verified', data = {'token' : _SITE_TOKEN}, verify=VERIFY_SSL)
+        except TimeoutError as error:
+            return Response(error.args[0], status=504)
+        return jsonify(user.to_dict())
     return Response('invalid user/token', status=400)
 
 
