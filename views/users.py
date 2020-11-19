@@ -134,7 +134,7 @@ def Logout():
 @users.route('/confirm', methods=['PUT'])
 @jwt_required
 @is_discord_bot
-def ConfirmDiscord():
+async def ConfirmDiscord():
     json = request.json
     user = User.query.filter_by(username=json['username']).first_or_404()
     token = json['token']
@@ -146,7 +146,8 @@ def ConfirmDiscord():
             user.discord_confirmed = True
             user.discord = json['discord']
             db.session.commit()
-            requests.post(_BASE_URL + '/bot/verified', data = {'token' : _SITE_TOKEN}, verify=VERIFY_SSL)
+            bot_responce = await requests.post(_BASE_URL + '/bot/verified', data = {'token' : _SITE_TOKEN}, verify=VERIFY_SSL)
+            if bot_responce.status
             return jsonify(user.to_dict())
         except IntegrityError as error:
             return Response(error.args[0], status=400)
