@@ -1,6 +1,7 @@
 import re
 import requests
 import os
+import json
 
 from flask import Blueprint, jsonify, request, Response
 from flask_jwt_extended import create_access_token, create_refresh_token, decode_token, get_jwt_identity, jwt_required
@@ -149,7 +150,8 @@ def ConfirmDiscord():
         except IntegrityError as error:
             return Response(error.args[0], status=400)
         try:
-            requests.post(_BASE_URL + '/bot/verified', data = {'token' : _SITE_TOKEN}, verify=VERIFY_SSL)
+            data = json.dumps({'token': _SITE_TOKEN})
+            requests.post(_BASE_URL + '/bot/verified', data = data, verify=VERIFY_SSL)
         except TimeoutError as error:
             return Response(error.args[0], status=504)
         return jsonify(user.to_dict())
