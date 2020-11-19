@@ -1,7 +1,7 @@
 import json
 
 from .setup import BasicTests, Method
-from models import Pin
+from models import Pin, User
 
 
 class PinTests(BasicTests):
@@ -62,8 +62,8 @@ class PinTests(BasicTests):
                         f"y_cord changed from {old_pin['y_cord']} to {data['y_cord']}\n")
 
         res_data = response.get_json()
-        self.assertEqual(res_data['edits'][0]['details'], edit_details)
-        self.assertEqual(res_data['edits'][0]['user']['id'], 1)
+        self.assertEqual(res_data['edits'][1]['details'], edit_details)
+        self.assertEqual(res_data['edits'][1]['user']['id'], 1)
         self.assertDictContainsSubset(data, res_data)
 
     def test_delete(self):
@@ -71,3 +71,15 @@ class PinTests(BasicTests):
         self.assertEqual(response.status_code, 200)
         response = self.request('/api/pins', headers={'Authorization': self.DEFAULT_TOKEN})
         self.assertEqual(len(response.get_json()), 0)
+
+    def test_delete_fail(self):
+        self.register('new', '1qaz!QAZ', self.DEFAULT_GUILD.id)
+        data = json.dumps({'role': User.Role.VERIFIED.value, 'is_active': True, 'guild_id': self.DEFAULT_GUILD.id})
+        self.request('/api/users/2', Method.PUT, {'Authorization': self.DEFAULT_TOKEN}, data)
+        token = f'Bearer {self.login("new", "1qaz!QAZ").get_json()["token"]}'
+        response = self.request('/api/users/discord-token', headers={'Authorization': token})
+        data = json.dumps({'discord': 'fakedata', 'token': response.get_json()['token'], 'username': 'new'})
+        self.request('/api/users/confirm', Method.PUT, {'Authorization': self.DEFAULT_TOKEN}, data)
+        response = self.request('/api/pins/1', Method.DELETE, {'Authorization': token})
+        self.assertEqual(response.status_code, 403)
+        self.assertIn(b'only the creator or an admin can delete a pin', response.data)
