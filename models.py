@@ -140,6 +140,8 @@ class Pin(db.Model, SerializerMixin):
         AUROCH = 'auroch'
         ELK = 'elk'
         WOLF = 'wolf'
+        GRYPHON = 'gryphon'
+        BEAR = 'bear'
         HUMAN = 'human'
         ELVEN = 'elven'
         MONSTER = 'monster'
