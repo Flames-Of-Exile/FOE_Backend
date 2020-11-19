@@ -14,6 +14,7 @@ from permissions import is_administrator, is_discord_bot, is_verified
 users = Blueprint('users', __name__, url_prefix='/api/users')
 _SITE_TOKEN = os.getenv('SITE_TOKEN')
 _BASE_URL = os.getenv('FRONTEND_URL')
+VERIFY_SSL = bool(int(os.getenv('VERIFY_SSL')))
 
 
 @users.route('', methods=['GET'])
@@ -117,7 +118,6 @@ def RefreshSession():
     refresh_token = request.cookies.get('refresh_token')
     user = User.query.get(decode_token(refresh_token)['identity']['id'])
     user = user.to_dict()
-
     data = {}
     data['user'] = user
     data['token'] = create_access_token(identity=user)
@@ -146,7 +146,7 @@ def ConfirmDiscord():
             user.discord_confirmed = True
             user.discord = json['discord']
             db.session.commit()
-            requests.post(_BASE_URL, data = {'token' : _SITE_TOKEN})
+            requests.post(_BASE_URL + '/verified', data = {'token' : _SITE_TOKEN}, verify=VERIFY_SSL)
             return jsonify(user.to_dict())
         except IntegrityError as error:
             return Response(error.args[0], status=400)
