@@ -151,7 +151,7 @@ def ConfirmDiscord():
             return Response(error.args[0], status=400)
         try:
             data = jsn.dumps({"token": _SITE_TOKEN})
-            requests.post(_BASE_URL + '/bot/verified', data = data, verify=VERIFY_SSL)
+            requests.get(_BASE_URL + '/bot/verified', data = data, verify=VERIFY_SSL)
         except:
             return Response(error.args[0], status=504)
         return jsonify(user.to_dict())
