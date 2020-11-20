@@ -7,7 +7,7 @@ from passlib.hash import sha256_crypt
 
 from app import create_app
 from config import test_config
-from models import db, Campaign, Guild, Pin, User, World
+from models import db, Campaign, Edit, Guild, Pin, User, World
 
 
 class Method(enum.Enum):
@@ -51,6 +51,10 @@ class BasicTests(unittest.TestCase):
 
         pin = Pin(1, 1, Pin.Symbol.ANIMAL, Pin.Resource.WOLF, 1, 1, '', 1, 1, 'notes', 1, 1)
         db.session.add(pin)
+        db.session.commit()
+
+        edit = Edit("", 1, 1)
+        db.session.add(edit)
         db.session.commit()
 
         self.DEFAULT_GUILD = guild

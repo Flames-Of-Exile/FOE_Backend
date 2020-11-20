@@ -2,8 +2,8 @@ from flask import Blueprint, jsonify, request, Response
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from sqlalchemy.exc import IntegrityError
 
-from models import db, Edit, Pin
-from permissions import is_administrator, is_verified
+from models import db, Edit, Pin, User
+from permissions import is_verified
 
 pins = Blueprint('pins', __name__, url_prefix='/api/pins')
 
@@ -90,9 +90,13 @@ def UpdatePin(id=0):
 
 @pins.route('/<id>', methods=['DELETE'])
 @jwt_required
-@is_administrator
+@is_verified
 def DeletePin(id=0):
     pin = Pin.query.get_or_404(id)
-    db.session.delete(pin)
-    db.session.commit()
-    return Response('pin deleted', status=200)
+    creator_id = pin.edits[0].user_id
+    user = get_jwt_identity()
+    if User.Role(user['role']) == User.Role.ADMIN or user['id'] == creator_id:
+        db.session.delete(pin)
+        db.session.commit()
+        return Response('pin deleted', status=200)
+    return Response('only the creator or an admin can delete a pin', status=403)
