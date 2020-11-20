@@ -1,5 +1,4 @@
 import re
-import requests
 import os
 
 from flask import Blueprint, jsonify, request, Response
