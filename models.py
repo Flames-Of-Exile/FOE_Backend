@@ -154,6 +154,7 @@ class Pin(db.Model, SerializerMixin):
         THRALLS = 'thralls'
         UNDERHILL = 'underhill'
         ENBARRI = 'enbarri'
+        SUNELF = 'sun elf'
         NA = 'na'
 
     id = db.Column(db.Integer, primary_key=True)

@@ -24,6 +24,7 @@ def upgrade():
     op.execute("ALTER TYPE resource ADD VALUE 'UNDERHILL'")
     op.execute("ALTER TYPE resource ADD VALUE 'ENBARRI'")
     op.execute("ALTER TYPE resource ADD VALUE 'THRALLS'")
+    op.execute("ALTER TYPE resource ADD VALUE 'SUNELF'")
 
 
 def downgrade():
