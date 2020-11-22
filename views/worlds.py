@@ -30,7 +30,7 @@ def CreateWorld():
     if not allowed_file(file.filename):
         return Response('invalid file type', status=400)
     try:
-        campaignName = Campaign.query.get(request.form['campaign_id']).name
+        campaignName = Campaign.query.get(request.form['campaign_id']).name.replace(' ', '_')
         newWorld = World(
             request.form['name'] or None,
             f'/mediafiles/campaigns/{campaignName}/{secure_filename(file.filename)}',
