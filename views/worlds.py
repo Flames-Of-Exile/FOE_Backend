@@ -1,3 +1,5 @@
+import os
+
 from flask import Blueprint, jsonify, request, Response
 from flask_jwt_extended import jwt_required
 from sqlalchemy.exc import IntegrityError
@@ -28,9 +30,10 @@ def CreateWorld():
     if not allowed_file(file.filename):
         return Response('invalid file type', status=400)
     try:
+        campaignName = Campaign.query.get(request.form['campaign_id']).name
         newWorld = World(
             request.form['name'] or None,
-            f'/mediafiles/{secure_filename(file.filename)}',
+            f'/mediafiles/campaigns/{campaignName}/{secure_filename(file.filename)}',
             request.form['center_lat'],
             request.form['center_lng'],
             request.form['radius'],
@@ -38,11 +41,12 @@ def CreateWorld():
             )
         db.session.add(newWorld)
         db.session.commit()
+        os.makedirs(f'/usr/src/app/mediafiles/campaigns/{campaignName}/{newWorld.name}', exist_ok=True)
         file.save(f'/usr/src/app{newWorld.image}')
         data = jsonify(newWorld.to_dict())
         data.status_code = 201
         return data
-    except IntegrityError as error:
+    except (IntegrityError, AttributeError) as error:
         return Response(error.args[0], status=400)
 
 
@@ -65,13 +69,15 @@ def UpdateWorld(id=0):
         return Response('invalid file type', status=400)
     try:
         world.name = request.form['name'] or None
-        world.image = f'/mediafiles/{secure_filename(file.filename)}'
+        world.campaign_id = request.form['campaign_id'] or None
+        campaignName = Campaign.query.get(world.campaign_id).name
+        world.image = f'/mediafiles/campaigns/{campaignName}/{secure_filename(file.filename)}'
         world.center_lat = request.form['center_lat']
         world.center_lng = request.form['center_lng']
         world.radius = request.form['radius']
-        world.campaign_id = request.form['campaign_id'] or None
         db.session.commit()
         file.save(f'/usr/src/app{world.image}')
+        os.mkdir(f'/usr/src/app/mediafiles/campaigns/{campaignName}/{world.name}')
         return jsonify(world.to_dict())
     except IntegrityError as error:
         return Response(error.args[0], status=400)

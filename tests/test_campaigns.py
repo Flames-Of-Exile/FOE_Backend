@@ -29,7 +29,7 @@ class CampaignTests(BasicTests):
         self.assertEqual(response.status_code, 404)
 
     def test_create_success(self):
-        campaign = Campaign('new', '/mediafiles/file.jpg')
+        campaign = Campaign('new', '/mediafiles/campaigns/file.jpg')
         campaign.id = 2
         response = self.create_campaign(self.DEFAULT_TOKEN, 'new', 'file.jpg', 'false')
         self.assertEqual(response.status_code, 201)
@@ -59,7 +59,7 @@ class CampaignTests(BasicTests):
         response = self.request('/api/campaigns/1', Method.PATCH, {'Authorization': self.DEFAULT_TOKEN}, data)
         self.assertEqual(response.status_code, 200)
         self.assertDictContainsSubset({'is_default': True, 'is_archived': False,
-                                       'name': 'updated_name', 'image': '/mediafiles/campaign.png'},
+                                       'name': 'updated_name', 'image': '/mediafiles/campaigns/campaign.png'},
                                       response.get_json())
 
     def test_list_archived(self):
@@ -74,7 +74,7 @@ class CampaignTests(BasicTests):
         data = response.get_json()
         self.assertEqual(len(data), 1)
         self.assertDictContainsSubset({'is_default': False, 'is_archived': True,
-                                       'name': 'campaign_name', 'image': '/mediafiles/campaign.png'},
+                                       'name': 'campaign_name', 'image': '/mediafiles/campaigns/campaign.png'},
                                       data[0])
 
     def test_list_no_archived(self):

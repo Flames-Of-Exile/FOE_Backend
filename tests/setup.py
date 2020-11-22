@@ -41,11 +41,11 @@ class BasicTests(unittest.TestCase):
         db.session.add(admin)
         db.session.commit()
 
-        campaign = Campaign('campaign_name', '/mediafiles/campaign.png', True)
+        campaign = Campaign('campaign_name', '/mediafiles/campaigns/campaign.png', True)
         db.session.add(campaign)
         db.session.commit()
 
-        world = World('world_name', '/mediafiles/world.png', 1, 1, 1, 1)
+        world = World('world_name', '/mediafiles/campaigns/campaign_name/world.png', 1, 1, 1, 1)
         db.session.add(world)
         db.session.commit()
 

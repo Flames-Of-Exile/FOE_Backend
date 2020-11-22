@@ -1,3 +1,5 @@
+import os
+
 from flask import Blueprint, jsonify, request, Response
 from flask_jwt_extended import jwt_required
 from sqlalchemy.exc import IntegrityError
@@ -29,7 +31,7 @@ def CreateCampaign():
     if not allowed_file(file.filename):
         return Response('invalid file type', status=400)
     try:
-        newCampaign = Campaign(request.form['name'] or None, f'/mediafiles/{secure_filename(file.filename)}')
+        newCampaign = Campaign(request.form['name'] or None, f'/mediafiles/campaigns/{secure_filename(file.filename)}')
         if request.form['is_default'] == 'true':
             old_default = Campaign.query.filter_by(is_default=True).all()
             for camp in old_default:
@@ -37,6 +39,7 @@ def CreateCampaign():
             newCampaign.is_default = True
         db.session.add(newCampaign)
         db.session.commit()
+        os.makedirs(f'/usr/src/app/mediafiles/campaigns/{newCampaign.name}', exist_ok=True)
         file.save(f'/usr/src/app{newCampaign.image}')
         data = jsonify(newCampaign.to_dict())
         data.status_code = 201
