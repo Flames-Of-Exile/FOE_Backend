@@ -39,7 +39,7 @@ def CreateCampaign():
             newCampaign.is_default = True
         db.session.add(newCampaign)
         db.session.commit()
-        os.makedirs(f'/usr/src/app/mediafiles/campaigns/{newCampaign.name}', exist_ok=True)
+        os.makedirs(f'/usr/src/app/mediafiles/campaigns/{newCampaign.name.replace(" ", "_")}', exist_ok=True)
         file.save(f'/usr/src/app{newCampaign.image}')
         data = jsonify(newCampaign.to_dict())
         data.status_code = 201
