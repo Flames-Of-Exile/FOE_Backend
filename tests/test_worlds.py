@@ -20,7 +20,7 @@ class WorldTests(BasicTests):
         self.assertEqual(self.DEFAULT_WORLD.to_dict(), response.get_json())
 
     def test_create_success(self):
-        world = World('new', '/mediafiles/file.jpg', 1, 1, 1, 1)
+        world = World('new', '/mediafiles/campaigns/campaign_name/file.jpg', 1, 1, 1, 1)
         world.id = 2
         world = world.to_dict()
         del world['campaign']
@@ -44,7 +44,7 @@ class WorldTests(BasicTests):
     def test_create_fail_invalid_campaign(self):
         response = self.create_world(self.DEFAULT_TOKEN, 'new', 'file.jpg', 1, 1, 1, 2)
         self.assertEqual(response.status_code, 400)
-        self.assertIn(b'violates foreign key constraint "worlds_campaign_id_fkey"', response.data)
+        self.assertIn(b"object has no attribute 'name'", response.data)
 
     def test_update(self):
         data = {
@@ -59,7 +59,7 @@ class WorldTests(BasicTests):
                                 'multipart/form-data')
         self.assertEqual(response.status_code, 200)
         data = response.get_json()
-        self.assertDictContainsSubset({'image': '/mediafiles/updatedname.png', 'name': 'updated_name'}, data)
+        self.assertDictContainsSubset({'image': '/mediafiles/campaigns/campaign_name/updatedname.png', 'name': 'updated_name'}, data)
 
     def test_query_name(self):
         response = self.request(f'/api/worlds/q?campaign={self.DEFAULT_CAMPAIGN.name}&world={self.DEFAULT_WORLD.name}',

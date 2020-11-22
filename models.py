@@ -84,6 +84,7 @@ class World(db.Model, SerializerMixin):
     radius = db.Column(db.Float, nullable=False)
     campaign_id = db.Column(db.Integer, db.ForeignKey('campaigns.id'), nullable=False)
     pins = db.relationship('Pin', backref='world', lazy=True)
+    __table_args__ = (db.UniqueConstraint('name', 'campaign_id', name='campaign_name'),)
 
     serialize_rules = ('-campaign_id', '-pins.world')
 
