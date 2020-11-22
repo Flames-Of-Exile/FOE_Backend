@@ -46,7 +46,7 @@ def migrate_media():
         os.chdir(campaign.name)
         for world in campaign.worlds:
             os.rename(f'/usr/src/app{world.image}',
-                      f'/usr/src/app/mediafiles/campaigns/{campaign.name}/{world.image.split("/")[2]}')
+                      f'/usr/src/app/mediafiles/campaigns/{campaign.name.replace(" ", "_")}/{world.image.split("/")[2]}')
             os.mkdir(world.name)
 
 
