@@ -147,6 +147,13 @@ class Pin(db.Model, SerializerMixin):
         MONSTER = 'monster'
         STONEBORN = 'stoneborn'
         GUINECIAN = 'guinecian'
+        URGU = 'urgu'
+        ELEMENTALS = 'elementals'
+        SATYR = 'satyr'
+        ARACOIX = 'aracoix'
+        THRALLS = 'thralls'
+        UNDERHILL = 'underhill'
+        ENBARRI = 'enbarri'
         NA = 'na'
 
     id = db.Column(db.Integer, primary_key=True)
