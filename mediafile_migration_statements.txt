@@ -1,2 +1,0 @@
-UPDATE campaigns SET image = OVERLAY(image PLACING '/campaigns' FROM 12 FOR 0);
-UPDATE worlds SET image = OVERLAY(worlds.image PLACING OVERLAY('/campaigns/' PLACING campaigns.name FROM 12 FOR 0) FROM 12 FOR 0) FROM campaigns WHERE campaign_id = campaigns.id;

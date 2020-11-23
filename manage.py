@@ -34,20 +34,20 @@ def run():
     socketio.run(app, host='0.0.0.0', port=5000, use_reloader=True, debug=True)
 
 
-@manager.command
-def migrate_media():
-    from models import Campaign
-    os.chdir('mediafiles')
-    os.mkdir('campaigns')
-    os.chdir('campaigns')
-    for campaign in Campaign.query.all():
-        os.rename(f'/usr/src/app{campaign.image}', f'/usr/src/app/mediafiles/campaigns/{campaign.image.split("/")[2]}')
-        os.mkdir(campaign.name.replace(' ', '_'))
-        os.chdir(campaign.name)
-        for world in campaign.worlds:
-            os.rename(f'/usr/src/app{world.image}',
-                      f'/usr/src/app/mediafiles/campaigns/{campaign.name.replace(" ", "_")}/{world.image.split("/")[2]}')
-            os.mkdir(world.name)
+# @manager.command
+# def migrate_media():
+#     from models import Campaign
+#     os.chdir('mediafiles')
+#     os.mkdir('campaigns')
+#     os.chdir('campaigns')
+#     for campaign in Campaign.query.all():
+#         os.rename(f'/usr/src/app{campaign.image}', f'/usr/src/app/mediafiles/campaigns/{campaign.image.split("/")[2]}')
+#         os.mkdir(campaign.name.replace(' ', '_'))
+#         os.chdir(campaign.name)
+#         for world in campaign.worlds:
+#             os.rename(f'/usr/src/app{world.image}',
+#                       f'/usr/src/app/mediafiles/campaigns/{campaign.name.replace(" ", "_")}/{world.image.split("/")[2]}')
+#             os.mkdir(world.name)
 
 
 if __name__ == '__main__':
