@@ -144,7 +144,7 @@ def ConfirmDiscord():
         try:
             user.discord_confirmed = True
             user.discord = json['discord']
-            if json['member'] = True:
+            if json['member'] == True:
                 user.role = 'verified'
             db.session.commit()
         except IntegrityError as error:
