@@ -173,18 +173,18 @@ def GetUserByDiscord(discord_id=0):
     return jsonify(user.to_dict())
 
 
-@users.route('/discordRoles/<discord_id>', methods=['PATCH'])
-@jwt_required
-@is_discord_bot
-def Revoke_user_Access(discord_id=0):
-    user = User.query.filter_by(discord=discord_id).first_or_404()
-    json = request.json
-    try:
-        user.active = json['is_active']
-        db.session.commit()
-        return jsonify(user.to_dict)
-    except IntegrityError:
-        return 404
+# @users.route('/discordRoles/<discord_id>', methods=['PATCH'])
+# @jwt_required
+# @is_discord_bot
+# def Revoke_user_Access(discord_id=0):
+#     user = User.query.filter_by(discord=discord_id).first_or_404()
+#     json = request.json
+#     try:
+#         user.active = json['is_active']
+#         db.session.commit()
+#         return jsonify(user.to_dict)
+#     except IntegrityError:
+#         return 404
 
 
 @users.route('/password-reset/<discord_id>', methods=['PATCH'])
