@@ -163,3 +163,12 @@ class UserTests(BasicTests):
         self.assertEqual(response.status_code, 400)
         response = self.login('new', 'badpass')
         self.assertEqual(response.status_code, 400)
+
+    def test_user_disable(self):
+        token = f'Bearer {self.register("new", "1qaz!QAZ", self.DEFAULT_GUILD.id).get_json()["token"]}'
+        response = self.request('/api/users/discord-token', headers={'Authorization': token})
+        data = json.dumps({'token': response.get_json()['token'], 'username': 'new', 'discord': 'dummyvalue', 'member': True})
+        self.request('/api/users/confirm', Method.PUT, {'Authorization': self.DEFAULT_TOKEN}, data)
+        data = json.dumps({'is_active': False})
+        response = self.request('/api/users/discordRoles/dummyvalue', Method.PATCH, {'Authorization': self.DEFAULT_TOKEN})
+        self.assertEqual(False, response.get_json()['active'])
