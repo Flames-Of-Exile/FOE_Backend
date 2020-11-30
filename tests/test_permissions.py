@@ -19,7 +19,7 @@ class PermissionsTests(BasicTests):
     def test_verified_required_rejects_guest(self):
         token = f'Bearer {self.register("new", "1qaz!QAZ", self.DEFAULT_GUILD.id).get_json()["token"]}'
         response = self.request('/api/users/discord-token', headers={'Authorization': token})
-        data = json.dumps({'discord': 'fakedata', 'token': response.get_json()['token'], 'username': 'new', 'member': True})
+        data = json.dumps({'discord': 'fakedata', 'token': response.get_json()['token'], 'username': 'new', 'member': False})
         self.request('/api/users/confirm', Method.PUT, {'Authorization': self.DEFAULT_TOKEN}, data)
         response = self.request('/api/users', headers={'Authorization': token})
         self.assertEqual(response.status_code, 403)

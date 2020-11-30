@@ -140,7 +140,7 @@ def ConfirmDiscord():
     user = User.query.filter_by(username=json['username']).first_or_404()
     token = json['token']
     if user.discord_confirmed is True:
-        return Response('user has already confirmed their discord', status=208)
+        return Response('user has already confirmed their discord', status=400)
     username = confirm_token(token)
     if username == user.username:
         try:
