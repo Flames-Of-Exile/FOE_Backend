@@ -145,14 +145,13 @@ def ConfirmDiscord():
         try:
             user.discord_confirmed = True
             user.discord = json['discord']
-            if json['member'] == True:
+            if json['member']:
                 user.role = 'verified'
             db.session.commit()
         except IntegrityError as error:
             return Response(error.args[0], status=400)
         return jsonify(user.to_dict())
     return Response('invalid user/token', status=400)
-
 
 @users.route('/discord-token', methods=['GET'])
 @jwt_required

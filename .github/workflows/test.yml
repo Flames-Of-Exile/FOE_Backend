@@ -51,6 +51,7 @@ jobs:
         SECURITY_PASSWORD_SALT: .
         SECRET_KEY: .
         FRONTEND_URL: '*'
+        VERIFY_SSL: 0
       run: |
         mkdir -p /usr/src/app/mediafiles
         coverage run unit_test.py
