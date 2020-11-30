@@ -19,7 +19,7 @@ class PermissionsTests(BasicTests):
     def test_verified_required_rejects_guest(self):
         token = f'Bearer {self.register("new", "1qaz!QAZ", self.DEFAULT_GUILD.id).get_json()["token"]}'
         response = self.request('/api/users/discord-token', headers={'Authorization': token})
-        data = json.dumps({'discord': 'fakedata', 'token': response.get_json()['token'], 'username': 'new'})
+        data = json.dumps({'discord': 'fakedata', 'token': response.get_json()['token'], 'username': 'new', 'member': False})
         self.request('/api/users/confirm', Method.PUT, {'Authorization': self.DEFAULT_TOKEN}, data)
         response = self.request('/api/users', headers={'Authorization': token})
         self.assertEqual(response.status_code, 403)
@@ -31,7 +31,7 @@ class PermissionsTests(BasicTests):
         self.request('/api/users/2', Method.PUT, {'Authorization': self.DEFAULT_TOKEN}, data)
         token = f'Bearer {self.login("new", "1qaz!QAZ").get_json()["token"]}'
         response = self.request('/api/users/discord-token', headers={'Authorization': token})
-        data = json.dumps({'discord': 'fakedata', 'token': response.get_json()['token'], 'username': 'new'})
+        data = json.dumps({'discord': 'fakedata', 'token': response.get_json()['token'], 'username': 'new', 'member': True})
         self.request('/api/users/confirm', Method.PUT, {'Authorization': self.DEFAULT_TOKEN}, data)
         response = self.request('/api/users', headers={'Authorization': token})
         self.assertEqual(response.status_code, 200)
@@ -43,7 +43,7 @@ class PermissionsTests(BasicTests):
     def test_admin_required_rejects_guest(self):
         token = f'Bearer {self.register("new", "1qaz!QAZ", self.DEFAULT_GUILD.id).get_json()["token"]}'
         response = self.request('/api/users/discord-token', headers={'Authorization': token})
-        data = json.dumps({'discord': 'fakedata', 'token': response.get_json()['token'], 'username': 'new'})
+        data = json.dumps({'discord': 'fakedata', 'token': response.get_json()['token'], 'username': 'new', 'member': True})
         self.request('/api/users/confirm', Method.PUT, {'Authorization': self.DEFAULT_TOKEN}, data)
         response = self.request('/api/users/1', Method.PUT, {'Authorization': token})
         self.assertEqual(response.status_code, 403)
@@ -55,7 +55,7 @@ class PermissionsTests(BasicTests):
         self.request('/api/users/2', Method.PUT, {'Authorization': self.DEFAULT_TOKEN}, data)
         token = f'Bearer {self.login("new", "1qaz!QAZ").get_json()["token"]}'
         response = self.request('/api/users/discord-token', headers={'Authorization': token})
-        data = json.dumps({'discord': 'fakedata', 'token': response.get_json()['token'], 'username': 'new'})
+        data = json.dumps({'discord': 'fakedata', 'token': response.get_json()['token'], 'username': 'new', 'member': True})
         self.request('/api/users/confirm', Method.PUT, {'Authorization': self.DEFAULT_TOKEN}, data)
         response = self.request('/api/users/1', Method.PUT, {'Authorization': token})
         self.assertEqual(response.status_code, 403)
@@ -109,7 +109,7 @@ class PermissionsTests(BasicTests):
     def test_is_discord_bot_allows_bot(self):
         token = f'Bearer {self.register("new", "1qaz!QAZ", self.DEFAULT_GUILD.id).get_json()["token"]}'
         response = self.request('/api/users/discord-token', headers={'Authorization': token})
-        data = json.dumps({'discord': 'fakedata', 'token': response.get_json()['token'], 'username': 'new'})
+        data = json.dumps({'discord': 'fakedata', 'token': response.get_json()['token'], 'username': 'new', 'member': True})
         response = self.request('/api/users/confirm', Method.PUT, {'Authorization': self.DEFAULT_TOKEN}, data)
         self.assertEqual(response.status_code, 200)
 

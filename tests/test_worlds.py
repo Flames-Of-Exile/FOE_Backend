@@ -59,7 +59,8 @@ class WorldTests(BasicTests):
                                 'multipart/form-data')
         self.assertEqual(response.status_code, 200)
         data = response.get_json()
-        self.assertDictContainsSubset({'image': '/mediafiles/campaigns/campaign_name/updatedname.png', 'name': 'updated_name'}, data)
+        self.assertDictContainsSubset({'image': '/mediafiles/campaigns/campaign_name/updatedname.png',
+                                       'name': 'updated_name'}, data)
 
     def test_query_name(self):
         response = self.request(f'/api/worlds/q?campaign={self.DEFAULT_CAMPAIGN.name}&world={self.DEFAULT_WORLD.name}',

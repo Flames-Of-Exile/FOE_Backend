@@ -60,7 +60,9 @@ def Login():
             data['user'] = user.to_dict()
             data['token'] = create_access_token(identity=user.to_dict())
             response = jsonify(data)
-            response.set_cookie('refresh_token', create_refresh_token(identity=user.to_dict()), httponly=True, secure=True)
+            response.set_cookie('refresh_token',
+                                create_refresh_token(identity=user.to_dict()),
+                                httponly=True, secure=True)
             return response
         else:
             return Response('invalid username/password', status=400)
@@ -144,6 +146,8 @@ def ConfirmDiscord():
         try:
             user.discord_confirmed = True
             user.discord = json['discord']
+            if json['member']:
+                user.role = User.Role('verified')
             db.session.commit()
         except IntegrityError as error:
             return Response(error.args[0], status=400)
@@ -167,6 +171,20 @@ def ResendConfirmation():
 def GetUserByDiscord(discord_id=0):
     user = User.query.filter_by(discord=discord_id).first_or_404()
     return jsonify(user.to_dict())
+
+
+# @users.route('/discordRoles/<discord_id>', methods=['PATCH'])
+# @jwt_required
+# @is_discord_bot
+# def Revoke_user_Access(discord_id=0):
+#     user = User.query.filter_by(discord=discord_id).first_or_404()
+#     json = request.json
+#     try:
+#         user.active = json['is_active']
+#         db.session.commit()
+#         return jsonify(user.to_dict)
+#     except IntegrityError:
+#         return 404
 
 
 @users.route('/password-reset/<discord_id>', methods=['PATCH'])
