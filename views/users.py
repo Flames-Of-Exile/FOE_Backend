@@ -178,6 +178,10 @@ def Revoke_user_Access(discord_id=0):
     json = request.json
     try:
         user.active = json['is_active']
+        if json['member']:
+            user.role = User.Role('verified')
+        else:
+            user.role = User.Role('guest')
         db.session.commit()
         return jsonify(user.to_dict)
     except:
