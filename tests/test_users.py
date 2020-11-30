@@ -100,7 +100,8 @@ class UserTests(BasicTests):
         self.request('/api/users/confirm', Method.PUT, {'Authorization': self.DEFAULT_TOKEN}, data)
         token = f'Bearer {self.register("new2", "1qaz!QAZ", self.DEFAULT_GUILD.id).get_json()["token"]}'
         response = self.request('/api/users/discord-token', headers={'Authorization': token})
-        data = json.dumps({'token': response.get_json()['token'], 'username': 'new2', 'discord': 'dummyvalue', 'member': False})
+        data = json.dumps({'token': response.get_json()['token'],
+                           'username': 'new2', 'discord': 'dummyvalue', 'member': False})
         response = self.request('/api/users/confirm', Method.PUT, {'Authorization': self.DEFAULT_TOKEN}, data)
         self.assertEqual(response.status_code, 400)
         self.assertIn(b'Key (discord)=(dummyvalue) already exists.', response.data)
