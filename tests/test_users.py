@@ -64,7 +64,7 @@ class UserTests(BasicTests):
     def test_confirm_discord_success(self):
         token = f'Bearer {self.register("new", "1qaz!QAZ", self.DEFAULT_GUILD.id).get_json()["token"]}'
         response = self.request('/api/users/discord-token', headers={'Authorization': token})
-        data = json.dumps({'token': response.get_json()['token'], 'username': 'new', 'discord': 'dummyvalue'})
+        data = json.dumps({'token': response.get_json()['token'], 'username': 'new', 'discord': 'dummyvalue', 'member': True})
         response = self.request('/api/users/confirm', Method.PUT, {'Authorization': self.DEFAULT_TOKEN}, data)
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'"discord_confirmed":true', response.data)
@@ -72,7 +72,7 @@ class UserTests(BasicTests):
     def test_confirm_discord_fail_already_confirmed(self):
         token = f'Bearer {self.register("new", "1qaz!QAZ", self.DEFAULT_GUILD.id).get_json()["token"]}'
         response = self.request('/api/users/discord-token', headers={'Authorization': token})
-        data = json.dumps({'token': response.get_json()['token'], 'username': 'new', 'discord': 'dummyvalue'})
+        data = json.dumps({'token': response.get_json()['token'], 'username': 'new', 'discord': 'dummyvalue', 'member': True})
         self.request('/api/users/confirm', Method.PUT, {'Authorization': self.DEFAULT_TOKEN}, data)
         response = self.request('/api/users/confirm', Method.PUT, {'Authorization': self.DEFAULT_TOKEN}, data)
         self.assertEqual(response.status_code, 400)
@@ -96,14 +96,31 @@ class UserTests(BasicTests):
     def test_confirm_discord_fail_unique_id(self):
         token = f'Bearer {self.register("new", "1qaz!QAZ", self.DEFAULT_GUILD.id).get_json()["token"]}'
         response = self.request('/api/users/discord-token', headers={'Authorization': token})
-        data = json.dumps({'token': response.get_json()['token'], 'username': 'new', 'discord': 'dummyvalue'})
+        data = json.dumps({'token': response.get_json()['token'], 'username': 'new', 'discord': 'dummyvalue', 'member': True})
         self.request('/api/users/confirm', Method.PUT, {'Authorization': self.DEFAULT_TOKEN}, data)
         token = f'Bearer {self.register("new2", "1qaz!QAZ", self.DEFAULT_GUILD.id).get_json()["token"]}'
         response = self.request('/api/users/discord-token', headers={'Authorization': token})
-        data = json.dumps({'token': response.get_json()['token'], 'username': 'new2', 'discord': 'dummyvalue'})
+        data = json.dumps({'token': response.get_json()['token'],
+                           'username': 'new2', 'discord': 'dummyvalue', 'member': False})
         response = self.request('/api/users/confirm', Method.PUT, {'Authorization': self.DEFAULT_TOKEN}, data)
         self.assertEqual(response.status_code, 400)
         self.assertIn(b'Key (discord)=(dummyvalue) already exists.', response.data)
+
+    def test_discord_set_member_status_verified(self):
+        token = f'Bearer {self.register("new", "1qaz!QAZ", self.DEFAULT_GUILD.id).get_json()["token"]}'
+        response = self.request('/api/users/discord-token', headers={'Authorization': token})
+        data = json.dumps({'token': response.get_json()['token'], 'username': 'new', 'discord': 'dummyvalue', 'member': True})
+        self.request('/api/users/confirm', Method.PUT, {'Authorization': self.DEFAULT_TOKEN}, data)
+        response = self.request('/api/users/2', headers={'Authorization': self.DEFAULT_TOKEN})
+        self.assertEqual(response.get_json()['role'], 'verified')
+
+    def test_discord_set_member_status_guest(self):
+        token = f'Bearer {self.register("new", "1qaz!QAZ", self.DEFAULT_GUILD.id).get_json()["token"]}'
+        response = self.request('/api/users/discord-token', headers={'Authorization': token})
+        data = json.dumps({'token': response.get_json()['token'], 'username': 'new', 'discord': 'dummyvalue', 'member': False})
+        self.request('/api/users/confirm', Method.PUT, {'Authorization': self.DEFAULT_TOKEN}, data)
+        response = self.request('/api/users/2', headers={'Authorization': self.DEFAULT_TOKEN})
+        self.assertEqual(response.get_json()['role'], 'guest')
 
     def test_send_discord_token_success(self):
         token = f'Bearer {self.register("new", "1qaz!QAZ", self.DEFAULT_GUILD.id).get_json()["token"]}'
@@ -119,7 +136,7 @@ class UserTests(BasicTests):
     def test_discord_whoami(self):
         token = f'Bearer {self.register("new", "1qaz!QAZ", self.DEFAULT_GUILD.id).get_json()["token"]}'
         response = self.request('/api/users/discord-token', headers={'Authorization': token})
-        data = json.dumps({'token': response.get_json()['token'], 'username': 'new', 'discord': 'test'})
+        data = json.dumps({'token': response.get_json()['token'], 'username': 'new', 'discord': 'test', 'member': True})
         self.request('/api/users/confirm', Method.PUT, {'Authorization': self.DEFAULT_TOKEN}, data)
         response = self.request('/api/users/discord/test', headers={'Authorization': self.DEFAULT_TOKEN})
         self.assertEqual(response.status_code, 200)
@@ -128,7 +145,7 @@ class UserTests(BasicTests):
     def test_discord_password_reset_success(self):
         token = f'Bearer {self.register("new", "1qaz!QAZ", self.DEFAULT_GUILD.id).get_json()["token"]}'
         response = self.request('/api/users/discord-token', headers={'Authorization': token})
-        data = json.dumps({'token': response.get_json()['token'], 'username': 'new', 'discord': 'test'})
+        data = json.dumps({'token': response.get_json()['token'], 'username': 'new', 'discord': 'test', 'member': True})
         self.request('/api/users/confirm', Method.PUT, {'Authorization': self.DEFAULT_TOKEN}, data)
         data = json.dumps({'password': '!QAZ1qaz'})
         response = self.request('/api/users/password-reset/test', Method.PATCH, {'Authorization': self.DEFAULT_TOKEN}, data)
@@ -139,7 +156,7 @@ class UserTests(BasicTests):
     def test_discord_password_reset_fail(self):
         token = f'Bearer {self.register("new", "1qaz!QAZ", self.DEFAULT_GUILD.id).get_json()["token"]}'
         response = self.request('/api/users/discord-token', headers={'Authorization': token})
-        data = json.dumps({'token': response.get_json()['token'], 'username': 'new', 'discord': 'test'})
+        data = json.dumps({'token': response.get_json()['token'], 'username': 'new', 'discord': 'test', 'member': True})
         self.request('/api/users/confirm', Method.PUT, {'Authorization': self.DEFAULT_TOKEN}, data)
         data = json.dumps({'password': 'badpass'})
         response = self.request('/api/users/password-reset/test', Method.PATCH, {'Authorization': self.DEFAULT_TOKEN}, data)

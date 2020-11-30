@@ -78,7 +78,7 @@ class PinTests(BasicTests):
         self.request('/api/users/2', Method.PUT, {'Authorization': self.DEFAULT_TOKEN}, data)
         token = f'Bearer {self.login("new", "1qaz!QAZ").get_json()["token"]}'
         response = self.request('/api/users/discord-token', headers={'Authorization': token})
-        data = json.dumps({'discord': 'fakedata', 'token': response.get_json()['token'], 'username': 'new'})
+        data = json.dumps({'discord': 'fakedata', 'token': response.get_json()['token'], 'username': 'new', 'member': True})
         self.request('/api/users/confirm', Method.PUT, {'Authorization': self.DEFAULT_TOKEN}, data)
         response = self.request('/api/pins/1', Method.DELETE, {'Authorization': token})
         self.assertEqual(response.status_code, 403)
