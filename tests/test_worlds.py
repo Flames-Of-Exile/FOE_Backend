@@ -1,4 +1,4 @@
-import io
+import json
 
 from .setup import BasicTests, Method
 from models import World
@@ -47,19 +47,17 @@ class WorldTests(BasicTests):
         self.assertIn(b"object has no attribute 'name'", response.data)
 
     def test_update(self):
-        data = {
-            'file': ((io.BytesIO(b'mockdata')), 'updatedname.png'),
+        data = json.dumps({
             'name': 'updated_name',
             'campaign_id': 1,
             'center_lat': 1,
             'center_lng': 1,
             'radius': 1
-        }
-        response = self.request('/api/worlds/1', Method.PATCH, {'Authorization': self.DEFAULT_TOKEN}, data,
-                                'multipart/form-data')
+        })
+        response = self.request('/api/worlds/1', Method.PATCH, {'Authorization': self.DEFAULT_TOKEN}, data)
         self.assertEqual(response.status_code, 200)
         data = response.get_json()
-        self.assertDictContainsSubset({'image': '/mediafiles/campaigns/campaign_name/updatedname.png', 'name': 'updated_name'}, data)
+        self.assertDictContainsSubset({'name': 'updated_name'}, data)
 
     def test_query_name(self):
         response = self.request(f'/api/worlds/q?campaign={self.DEFAULT_CAMPAIGN.name}&world={self.DEFAULT_WORLD.name}',
