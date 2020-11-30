@@ -62,22 +62,13 @@ def RetrieveWorld(id=0):
 @is_administrator
 def UpdateWorld(id=0):
     world = World.query.get_or_404(id)
-    if 'file' not in request.files:
-        return Response('no file found', status=400)
-    file = request.files['file']
-    if not allowed_file(file.filename):
-        return Response('invalid file type', status=400)
     try:
-        world.name = request.form['name'] or None
-        world.campaign_id = request.form['campaign_id'] or None
-        campaignName = Campaign.query.get(world.campaign_id).name
-        world.image = f'/mediafiles/campaigns/{campaignName}/{secure_filename(file.filename)}'
-        world.center_lat = request.form['center_lat']
-        world.center_lng = request.form['center_lng']
-        world.radius = request.form['radius']
+        json = request.json
+        world.name = json['name'] or None
+        world.center_lat = json['center_lat']
+        world.center_lng = json['center_lng']
+        world.radius = json['radius']
         db.session.commit()
-        file.save(f'/usr/src/app{world.image}')
-        os.mkdir(f'/usr/src/app/mediafiles/campaigns/{campaignName}/{world.name}')
         return jsonify(world.to_dict())
     except IntegrityError as error:
         return Response(error.args[0], status=400)
