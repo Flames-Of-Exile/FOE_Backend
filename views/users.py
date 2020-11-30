@@ -60,13 +60,14 @@ def Login():
             data['user'] = user.to_dict()
             data['token'] = create_access_token(identity=user.to_dict())
             response = jsonify(data)
-            response.set_cookie('refresh_token', create_refresh_token(identity=user.to_dict()), httponly=True, secure=True)
+            response.set_cookie('refresh_token', 
+                                create_refresh_token(identity=user.to_dict()), 
+                                httponly=True, secure=True)
             return response
         else:
             return Response('invalid username/password', status=400)
     except (IntegrityError, AttributeError):
         return Response('invalid username/password', status=400)
-
 
 @users.route('/<id>', methods=['GET'])
 @jwt_required
@@ -180,9 +181,8 @@ def Revoke_user_Access(discord_id=0):
         user.active = json['is_active']
         db.session.commit()
         return jsonify(user.to_dict)
-    except:
+    except IntegrityError:
         return 404
-
 
 @users.route('/password-reset/<discord_id>', methods=['PATCH'])
 @jwt_required
