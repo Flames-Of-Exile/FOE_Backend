@@ -64,11 +64,15 @@ def UpdateWorld(id=0):
     world = World.query.get_or_404(id)
     try:
         json = request.json
+        oldName = world.name
         world.name = json['name'] or None
         world.center_lat = json['center_lat']
         world.center_lng = json['center_lng']
         world.radius = json['radius']
         db.session.commit()
+        campaignName = Campaign.query.get(world.campaign_id).name.replace(' ', '_')
+        os.rename(f'/usr/src/app/mediafiles/campaigns/{campaignName}/{oldName}',
+                  f'/usr/src/app/mediafiles/campaigns/{campaignName}/{world.name}')
         return jsonify(world.to_dict())
     except IntegrityError as error:
         return Response(error.args[0], status=400)
