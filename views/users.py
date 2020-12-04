@@ -181,13 +181,13 @@ def Revoke_user_Access(discord_id=0):
     json = request.json
     try:
         if 'is_active' in json:
-            user.active = json['is_active']
+            user.is_active = json['is_active']
         if 'role' in json:
             user.role = User.Role(json['role'])
         db.session.commit()
-        return 200
+        return jsonify(user.to_dict()), 200
     except IntegrityError:
-        return 404
+        return jsonify('could not find requested user'), 404
 
 
 @users.route('/password-reset/<discord_id>', methods=['PATCH'])
