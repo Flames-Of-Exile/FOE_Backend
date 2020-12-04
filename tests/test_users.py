@@ -130,7 +130,7 @@ class UserTests(BasicTests):
         data = json.dumps({'token': response.get_json()['token'], 'discord': 'dummyvalue', 'is_active': False, 'role': 'guest'})
         self.request('/api/users/discordroles/2', Method.PATCH, {'Authorization': self.DEFAULT_TOKEN}, data)
         response = self.request('/api/users/2', headers={'Authorization': self.DEFAULT_TOKEN})
-        self.assertEqual(response.get_json(['discord']), 'dummyvalue')
+        self.assertEqual(response.get_json(), 'dummyvalue')
         self.assertEqual(response.get_json()['role'], 'guest')
         self.assertEqual(response.get_json()['is_active'], False)
 
