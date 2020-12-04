@@ -144,7 +144,7 @@ class UserTests(BasicTests):
         print(post.status_code)
         print(post.get_json())
         response = self.request('/api/users/discord/dummyvalue', headers={'Authorization': self.DEFAULT_TOKEN})
-        print(responce.get_json())
+        print(response.get_json())
         self.assertEqual(response.get_json()['role'], 'admin')
         self.assertEqual(response.get_json()['is_active'], True)
 
