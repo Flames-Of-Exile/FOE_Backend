@@ -187,7 +187,7 @@ def Revoke_user_Access(discord_id=0):
         db.session.commit()
         return jsonify(user.to_dict()), 200
     except IntegrityError:
-        return jsonify('could not find requested user'), 404
+        return jsonify('could not complete the requested action'), 400
 
 
 @users.route('/password-reset/<discord_id>', methods=['PATCH'])
