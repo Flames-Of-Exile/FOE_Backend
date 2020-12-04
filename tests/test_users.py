@@ -129,7 +129,7 @@ class UserTests(BasicTests):
         self.request('/api/users/confirm', Method.PUT, {'Authorization': self.DEFAULT_TOKEN}, data=data)
         data = json.dumps({'token': response.get_json()['token'],
                            'discord': 'dummyvalue', 'is_active': False, 'role': 'guest'})
-        self.request('/api/users/discordroles/dummyvalue', Method.PATCH, {'Authorization': self.DEFAULT_TOKEN}, data=data)
+        self.request('/api/users/discordRoles/dummyvalue', Method.PATCH, {'Authorization': self.DEFAULT_TOKEN}, data=data)
         response = self.request('/api/users/discord/dummyvalue', headers={'Authorization': self.DEFAULT_TOKEN})
         self.assertEqual(response.get_json()['role'], 'guest')
         self.assertEqual(response.get_json()['is_active'], False)
@@ -141,10 +141,7 @@ class UserTests(BasicTests):
         self.request('/api/users/confirm', Method.PUT, {'Authorization': self.DEFAULT_TOKEN}, data)
         data = json.dumps({'token': response.get_json()['token'], 'discord': 'dummyvalue', 'is_active': True, 'role': 'admin'})
         post = self.request('/api/users/discordRoles/dummyvalue', Method.PATCH, headers={'Authorization': self.DEFAULT_TOKEN}, data=data)
-        print(post.status_code)
-        print(post.get_json())
         response = self.request('/api/users/discord/dummyvalue', headers={'Authorization': self.DEFAULT_TOKEN})
-        print(response.get_json())
         self.assertEqual(response.get_json()['role'], 'admin')
         self.assertEqual(response.get_json()['is_active'], True)
 
