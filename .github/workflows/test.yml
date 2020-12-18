@@ -52,6 +52,7 @@ jobs:
         SECRET_KEY: .
         FRONTEND_URL: '*'
         VERIFY_SSL: 0
+        BOT_URL: '*'
       run: |
         mkdir -p /usr/src/app/mediafiles
         coverage run unit_test.py
