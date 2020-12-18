@@ -62,6 +62,7 @@ def UpdateCampaign(id=0):
     campaign = Campaign.query.get_or_404(id)
     try:
         json = request.json
+        oldName = campaign.name
         campaign.name = json['name'] or None
         campaign.is_archived = json['is_archived']
         if json['is_default'] is True:
@@ -71,6 +72,10 @@ def UpdateCampaign(id=0):
             campaign.is_default = True
         else:
             campaign.is_default = False
+        db.session.commit()
+        os.rename(f'/usr/src/app/mediafiles/campaigns/{oldName}', f'/usr/src/app/mediafiles/campaigns/{campaign.name}')
+        for world in campaign.worlds:
+            world.image = world.image.replace(oldName, campaign.name)
         db.session.commit()
         return jsonify(campaign.to_dict())
     except IntegrityError as error:
