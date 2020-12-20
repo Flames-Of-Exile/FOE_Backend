@@ -48,6 +48,7 @@ def CreateUser():
             )
         db.session.add(newUser)
         db.session.commit()
+        log.info(json)
         del json['password']
         if json['currentMember'] is False:
             json['SITE_TOKEN'] = _SITE_TOKEN
