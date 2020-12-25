@@ -25,13 +25,13 @@ def get_all_events():
 @is_administrator
 def create_new_event():
     if 'name' not in request.json:
-        return Response('name not found', status=401)
+        return Response('name not found', status=400)
     if 'game' not in request.json:
-        return Response('game not found', status=402)
+        return Response('game not found', status=400)
     if 'when' not in request.json:
-        return Response('when not found', status=403)
+        return Response('when not found', status=400)
     if 'note' not in request.json:
-        return Response('note not found', status=405)
+        return Response('note not found', status=400)
     event = request.json
     new_event = Event(event['name'], event['game'], event['when'], event['note'])
     db.session.add(new_event)
@@ -44,3 +44,11 @@ def create_new_event():
     # except KeyError as error:
     #     log.info(error)
     #     return Response(error.args[0], status=418)
+
+@calendar.route('/<id>', methods=['PATCH'])
+@jwt_required
+@is_administrator
+def alter_event(id):
+    event = Event.query.filter_by(id=id)
+    json = request.json
+    
