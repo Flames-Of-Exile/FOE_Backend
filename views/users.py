@@ -8,7 +8,7 @@ from sqlalchemy.exc import IntegrityError
 
 from discord_token import confirm_token, generate_confirmation_token
 from models import db, User
-from permissions import is_administrator, is_discord_bot, is_verified
+from permissions import is_administrator, is_discord_bot, is_verified, is_guild_leader
 
 users = Blueprint('users', __name__, url_prefix='/api/users')
 _SITE_TOKEN = os.getenv('SITE_TOKEN')
@@ -96,11 +96,15 @@ def UpdateUser(id=0):
 
 @users.route('/<id>', methods=['PUT'])
 @jwt_required
-@is_administrator
+@is_guild_leader
 def AdminUpdateUser(id=0):
     user = User.query.get_or_404(id)
     if get_jwt_identity()['id'] == int(id):
         return Response('cannot update your own account', status=403)
+    admin = User.query.get_or_404(get_jwt_identity['id'])
+    if admin.role not in [User.Role.ADMIN]:
+        if admin.guild != user.guild:
+            return Response('must be in the guild you are atempting to edit', status=403)    
     try:
         json = request.json
         if ('password' in json.keys()):

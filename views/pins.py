@@ -3,7 +3,7 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 from sqlalchemy.exc import IntegrityError
 
 from models import db, Edit, Pin, User
-from permissions import is_verified
+from permissions import is_verified, is_guild_member
 
 pins = Blueprint('pins', __name__, url_prefix='/api/pins')
 
@@ -56,7 +56,7 @@ def RetrievePin(id=0):
 
 @pins.route('/<id>', methods=['PATCH'])
 @jwt_required
-@is_verified
+@is_guild_member
 def UpdatePin(id=0):
     pin = Pin.query.get_or_404(id)
     try:
@@ -90,7 +90,7 @@ def UpdatePin(id=0):
 
 @pins.route('/<id>', methods=['DELETE'])
 @jwt_required
-@is_verified
+@is_guild_member
 def DeletePin(id=0):
     pin = Pin.query.get_or_404(id)
     creator_id = pin.edits[0].user_id

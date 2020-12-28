@@ -6,7 +6,7 @@ from sqlalchemy.exc import IntegrityError
 from werkzeug.utils import secure_filename
 
 from models import db, Campaign
-from permissions import is_administrator, is_verified
+from permissions import is_administrator, is_verified, is_guild_member
 from upload import allowed_file
 
 
@@ -23,7 +23,7 @@ def ListCampaigns():
 
 @campaigns.route('', methods=['POST'])
 @jwt_required
-@is_verified
+@is_guild_member
 def CreateCampaign():
     if 'file' not in request.files:
         return Response('no file found', status=400)
