@@ -1,5 +1,6 @@
 import re
 import os
+import traceback
 
 from flask import Blueprint, jsonify, request, Response
 from flask_jwt_extended import create_access_token, create_refresh_token, decode_token, get_jwt_identity, jwt_required
@@ -9,11 +10,13 @@ from sqlalchemy.exc import IntegrityError
 from discord_token import confirm_token, generate_confirmation_token
 from models import db, User
 from permissions import is_administrator, is_discord_bot, is_verified, is_guild_leader
+from logger import get_logger
 
 users = Blueprint('users', __name__, url_prefix='/api/users')
 _SITE_TOKEN = os.getenv('SITE_TOKEN')
 _BASE_URL = os.getenv('FRONTEND_URL')
 VERIFY_SSL = bool(int(os.getenv('VERIFY_SSL')))
+log = get_logger(__name__)
 
 
 @users.route('', methods=['GET'])
@@ -67,6 +70,7 @@ def Login():
         else:
             return Response('invalid username/password', status=400)
     except (IntegrityError, AttributeError):
+        log.warning(traceback.format_exc())
         return Response('invalid username/password', status=400)
 
 

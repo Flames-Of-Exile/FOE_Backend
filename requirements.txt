@@ -3,7 +3,7 @@
 eventlet==0.29.1
 flask==1.1.2
 flask_cors==3.0.9
-Flask-JWT-Extended==3.24.1
+Flask-JWT-Extended==3.25.0
 Flask-Migrate==2.5.2
 Flask-Script==2.0.6
 Flask-SocketIO==4.3.1
