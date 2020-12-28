@@ -46,3 +46,33 @@ def is_discord_bot(func, **kwargs):
             return Response('only discord bot is allowed access', status=403)
         return func(*args, **kwargs)
     return wrapper
+
+def is_other_guild_leader(func, **kwargs):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        user = User.query.get(get_jwt_identity()['id'])
+        if not user.is_active:
+            return Response('account is locked', status=403)
+        if not user.guild.is_active:
+            return Response('guild is locked', status=403)
+        if not user.discord_confirmed:
+            return Response('has not confirmed account on discord', status=403)
+        if user.role not in [User.Role.GUILD_LEADER, User.Role.ADMIN]:
+            return Response('requires Guild leader account', status=403)
+        return func(*args, **kwargs)
+    return wrapper
+
+def is_allance(func, **kwargs):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        user = User.query.get(get_jwt_identity()['id'])
+        if not user.is_active:
+            return Response('account is locked', status=403)
+        if not user.guild.is_active:
+            return Response('guild is locked', status=403)
+        if not user.discord_confirmed:
+            return Response('has not confirmed account on discord', status=403)
+        if user.role not in [User.Role.ALLIANCE_MEMBER, User.Role.GUILD_LEADER, User.Role.VERIFIED, User.Role.ADMIN]:
+            return Response('requires verified account', status=403)
+        return func(*args, **kwargs)
+    return wrapper
