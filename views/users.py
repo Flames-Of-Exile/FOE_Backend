@@ -213,6 +213,37 @@ def ResetPassword(discord_id=0):
     db.session.commit()
     return jsonify(user.to_dict())
 
+@users.route('/alliance/vouch', methods=['PATCH'])
+@jwt_required
+@is_discord_bot
+def vouch_for_member():
+    json = request.json
+    diplo = User.query.filter_by(discord=json['diplo']).first_or_404()
+    user = User.query.filter_by(discord=json['target_user']).first_or_404()
+    if diplo.guild_id == user.guild_id:
+        user.role == User.Role.ALLIANCE_MEMBER
+        db.session.commit()
+        response = jsonify(user.to_dict())
+        response.status_code = 200
+        return response
+    return jsonify('must be member of same guild to manage'), 403
+
+@users.route('/alliance/endvouch', methods=['PATCH'])
+@jwt_required
+@is_discord_bot
+def endvouch_for_member():
+    json = request.json
+    diplo = User.query.filter_by(discord=json['diplo']).first_or_404()
+    user = User.query.filter_by(discord=json['target_user']).first_or_404()
+    if diplo.guild_id == user.guild_id:
+        user.is_active == False
+        user.role == User.Role.GUEST
+        db.session.commit()
+        response = jsonify(user.to_dict())
+        response.status_code = 200
+        return response
+    return jsonify('must be member of same guild to manage'), 403
+
 
 def PassComplexityCheck(password):
     # calculating the length

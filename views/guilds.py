@@ -3,7 +3,7 @@ from flask_jwt_extended import jwt_required
 from sqlalchemy.exc import IntegrityError
 
 from models import db, Guild
-from permissions import is_administrator
+from permissions import is_administrator, is_discord_bot
 
 guilds = Blueprint('guilds', __name__, url_prefix='/api/guilds')
 
@@ -59,3 +59,13 @@ def UpdateGuild(id=0):
 def NameQuery():
     name = request.args.get('name')
     return jsonify(Guild.query.filter_by(name=name).first_or_404().to_dict())
+
+@guilds.route('/burn', methods=['PATCH'])
+@jwt_required
+@is_discord_bot
+def burn_guild():
+    guild = Guild.query.filter_by(name=request.json['name']).first_or_404()
+    guild.is_active == False
+    db.session.commit()
+    users = [user.discord for user in guild.users]
+    return jsonify(users)
