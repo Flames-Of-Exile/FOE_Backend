@@ -64,8 +64,18 @@ def NameQuery():
 @jwt_required
 @is_discord_bot
 def burn_guild():
-    guild = Guild.query.filter_by(name=request.json['name']).first_or_404()
-    guild.is_active == False
+    guild = Guild.query.filter_by(name=request.json['guild']).first_or_404()
+    guild.is_active = False
     db.session.commit()
-    users = [user.discord for user in guild.users]
+    users = [int(user.discord) for user in guild.users]
+    return jsonify(users)
+
+@guilds.route('/unburn', methods=['PATCH'])
+@jwt_required
+@is_discord_bot
+def unburn_guild():
+    guild = Guild.query.filter_by(name=request.json['guild']).first_or_404()
+    guild.is_active = True
+    db.session.commit()
+    users = [int(user.discord) for user in guild.users]
     return jsonify(users)

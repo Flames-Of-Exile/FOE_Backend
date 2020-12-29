@@ -15,7 +15,7 @@ class User(db.Model, SerializerMixin):
         VERIFIED = 'verified'
         ADMIN = 'admin'
         GUILD_LEADER = 'guild_leader'
-        ALLIANCE_MEMBER = 'allliance_member'
+        ALLIANCE_MEMBER = 'alliance_member'
 
     class Theme(enum.Enum):
         DEFAULT = 'default'

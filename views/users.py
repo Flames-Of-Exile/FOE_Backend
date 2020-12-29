@@ -105,7 +105,7 @@ def AdminUpdateUser(id=0):
     user = User.query.get_or_404(id)
     if get_jwt_identity()['id'] == int(id):
         return Response('cannot update your own account', status=403)
-    admin = User.query.get_or_404(get_jwt_identity['id'])
+    admin = User.query.get_or_404(get_jwt_identity()['id'])
     if admin.role not in [User.Role.ADMIN]:
         if admin.guild != user.guild:
             return Response('must be in the guild you are atempting to edit', status=403)    
@@ -218,10 +218,13 @@ def ResetPassword(discord_id=0):
 @is_discord_bot
 def vouch_for_member():
     json = request.json
-    diplo = User.query.filter_by(discord=json['diplo']).first_or_404()
-    user = User.query.filter_by(discord=json['target_user']).first_or_404()
-    if diplo.guild_id == user.guild_id:
-        user.role == User.Role.ALLIANCE_MEMBER
+    log.warning(type(json['diplo']))
+    diplo = User.query.filter_by(discord=str(json['diplo'])).first_or_404()
+    user = User.query.filter_by(discord=str(json['target_user'])).first_or_404()
+    if diplo.guild_id == user.guild_id or diplo.role == User.Role.ADMIN:
+        user.role = User.Role.ALLIANCE_MEMBER
+        user.is_active = True
+        log.warning(user.role)
         db.session.commit()
         response = jsonify(user.to_dict())
         response.status_code = 200
@@ -233,11 +236,11 @@ def vouch_for_member():
 @is_discord_bot
 def endvouch_for_member():
     json = request.json
-    diplo = User.query.filter_by(discord=json['diplo']).first_or_404()
-    user = User.query.filter_by(discord=json['target_user']).first_or_404()
-    if diplo.guild_id == user.guild_id:
-        user.is_active == False
-        user.role == User.Role.GUEST
+    diplo = User.query.filter_by(discord=str(json['diplo'])).first_or_404()
+    user = User.query.filter_by(discord=str(json['target_user'])).first_or_404()
+    if diplo.guild_id == user.guild_id or diplo.role == User.Role.ADMIN:
+        user.is_active = False
+        user.role = User.Role.GUEST
         db.session.commit()
         response = jsonify(user.to_dict())
         response.status_code = 200
