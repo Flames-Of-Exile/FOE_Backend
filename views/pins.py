@@ -3,21 +3,21 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 from sqlalchemy.exc import IntegrityError
 
 from models import db, Edit, Pin, User
-from permissions import is_verified
+from permissions import is_verified, is_alliance_member
 
 pins = Blueprint('pins', __name__, url_prefix='/api/pins')
 
 
 @pins.route('', methods=['GET'])
 @jwt_required
-@is_verified
+@is_alliance_member
 def ListPins():
     return jsonify([pin.to_dict() for pin in Pin.query.all()])
 
 
 @pins.route('', methods=['POST'])
 @jwt_required
-@is_verified
+@is_alliance_member
 def CreatePin():
     json = request.json
     try:
@@ -49,16 +49,19 @@ def CreatePin():
 
 @pins.route('/<id>', methods=['GET'])
 @jwt_required
-@is_verified
+@is_alliance_member
 def RetrievePin(id=0):
     return jsonify(Pin.query.get_or_404(id).to_dict())
 
 
 @pins.route('/<id>', methods=['PATCH'])
 @jwt_required
-@is_verified
+@is_alliance_member
 def UpdatePin(id=0):
     pin = Pin.query.get_or_404(id)
+    user = get_jwt_identity()
+    if (User.Role(user['role']) not in [User.Role.ADMIN, User.Role.VERIFIED]) and (user['id'] != pin.edits[0].user_id):
+        return Response('only the creator or an admin can edit a pin', status=403)
     try:
         json = request.json
         details = ''

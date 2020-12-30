@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 341063e49c43
+Revision ID: cf69f5c67d0d
 Revises: 
-Create Date: 2020-11-16 22:38:12.462726
+Create Date: 2020-12-29 04:01:03.658825
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '341063e49c43'
+revision = 'cf69f5c67d0d'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -41,7 +41,7 @@ def upgrade():
     sa.Column('password', sa.String(), nullable=False),
     sa.Column('discord', sa.String(), nullable=True),
     sa.Column('is_active', sa.Boolean(), nullable=False),
-    sa.Column('role', sa.Enum('GUEST', 'VERIFIED', 'ADMIN', name='role'), nullable=False),
+    sa.Column('role', sa.Enum('GUEST', 'VERIFIED', 'ADMIN', 'GUILD_LEADER', 'ALLIANCE_MEMBER', name='role'), nullable=False),
     sa.Column('theme', sa.Enum('DEFAULT', 'BLUE_RASPBERRY', 'SEABREEZE', 'CARTOGRAPHY', 'PUMPKIN_SPICE', 'RED', name='theme'), nullable=False),
     sa.Column('discord_confirmed', sa.Boolean(), nullable=False),
     sa.Column('guild_id', sa.Integer(), nullable=False),
@@ -60,14 +60,15 @@ def upgrade():
     sa.Column('campaign_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['campaign_id'], ['campaigns.id'], ),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('image')
+    sa.UniqueConstraint('image'),
+    sa.UniqueConstraint('name', 'campaign_id', name='campaign_name')
     )
     op.create_table('pins',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('position_x', sa.Float(), nullable=False),
     sa.Column('position_y', sa.Float(), nullable=False),
     sa.Column('symbol', sa.Enum('STONE', 'STONE_MOTHERLODE', 'ORE', 'ORE_MOTHERLODE', 'WOOD', 'ANIMAL', 'ANIMAL_BOSS', 'MOB', 'MOB_BOSS', 'WELL', 'GRAVE', 'TACTICAL_HOUSE', 'TACTICAL_FIRE', 'TACTICAL_FISH', name='symbol'), nullable=False),
-    sa.Column('resource', sa.Enum('YEW', 'BIRCH', 'ASH', 'OAK', 'SPRUCE', 'COPPER', 'TIN', 'IRON', 'SILVER', 'AURELIUM', 'GRANITE', 'LIMESTONE', 'TRAVERTINE', 'SLATE', 'MARBLE', 'SPIDER', 'PIG', 'CAT', 'AUROCH', 'ELK', 'WOLF', 'HUMAN', 'ELVEN', 'MONSTER', 'STONEBORN', 'GUINECIAN', 'NA', name='resource'), nullable=False),
+    sa.Column('resource', sa.Enum('YEW', 'BIRCH', 'ASH', 'OAK', 'SPRUCE', 'COPPER', 'TIN', 'IRON', 'SILVER', 'AURELIUM', 'GRANITE', 'LIMESTONE', 'TRAVERTINE', 'SLATE', 'MARBLE', 'SPIDER', 'PIG', 'CAT', 'AUROCH', 'ELK', 'WOLF', 'GRYPHON', 'BEAR', 'HUMAN', 'ELVEN', 'MONSTER', 'STONEBORN', 'GUINECIAN', 'URGU', 'ELEMENTALS', 'SATYR', 'ARACOIX', 'THRALLS', 'UNDERHILL', 'ENBARRI', 'SUNELF', 'NA', name='resource'), nullable=False),
     sa.Column('rank', sa.Integer(), nullable=True),
     sa.Column('name', sa.String(), nullable=True),
     sa.Column('amount', sa.Integer(), nullable=True),

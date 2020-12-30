@@ -12,7 +12,7 @@ from sqlalchemy.exc import IntegrityError
 
 from discord_token import confirm_token, generate_confirmation_token
 from models import db, User
-from permissions import is_administrator, is_discord_bot, is_verified
+from permissions import is_administrator, is_discord_bot, is_verified, is_guild_leader
 from logger import get_logger
 
 log = logging.getLogger('discord')
@@ -115,11 +115,15 @@ def UpdateUser(id=0):
 
 @users.route('/<id>', methods=['PUT'])
 @jwt_required
-@is_administrator
+@is_guild_leader
 def AdminUpdateUser(id=0):
     user = User.query.get_or_404(id)
     if get_jwt_identity()['id'] == int(id):
         return Response('cannot update your own account', status=403)
+    admin = User.query.get_or_404(get_jwt_identity()['id'])
+    if admin.role not in [User.Role.ADMIN]:
+        if admin.guild != user.guild:
+            return Response('must be in the guild you are atempting to edit', status=403)    
     try:
         json = request.json
         if ('password' in json.keys()):
@@ -223,6 +227,40 @@ def ResetPassword(discord_id=0):
     user.password = sha256_crypt.encrypt(json['password'])
     db.session.commit()
     return jsonify(user.to_dict())
+
+@users.route('/alliance/vouch', methods=['PATCH'])
+@jwt_required
+@is_discord_bot
+def vouch_for_member():
+    json = request.json
+    log.warning(type(json['diplo']))
+    diplo = User.query.filter_by(discord=str(json['diplo'])).first_or_404()
+    user = User.query.filter_by(discord=str(json['target_user'])).first_or_404()
+    if diplo.guild_id == user.guild_id or diplo.role == User.Role.ADMIN:
+        user.role = User.Role.ALLIANCE_MEMBER
+        user.is_active = True
+        log.warning(user.role)
+        db.session.commit()
+        response = jsonify(user.to_dict())
+        response.status_code = 200
+        return response
+    return jsonify('must be member of same guild to manage'), 403
+
+@users.route('/alliance/endvouch', methods=['PATCH'])
+@jwt_required
+@is_discord_bot
+def endvouch_for_member():
+    json = request.json
+    diplo = User.query.filter_by(discord=str(json['diplo'])).first_or_404()
+    user = User.query.filter_by(discord=str(json['target_user'])).first_or_404()
+    if diplo.guild_id == user.guild_id or diplo.role == User.Role.ADMIN:
+        user.is_active = False
+        user.role = User.Role.GUEST
+        db.session.commit()
+        response = jsonify(user.to_dict())
+        response.status_code = 200
+        return response
+    return jsonify('must be member of same guild to manage'), 403
 
 
 def PassComplexityCheck(password):

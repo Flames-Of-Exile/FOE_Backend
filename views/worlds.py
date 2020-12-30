@@ -6,7 +6,7 @@ from sqlalchemy.exc import IntegrityError
 from werkzeug.utils import secure_filename
 
 from models import db, Campaign, World
-from permissions import is_administrator, is_verified
+from permissions import is_administrator, is_verified, is_alliance_member
 from upload import allowed_file
 
 
@@ -15,7 +15,7 @@ worlds = Blueprint('worlds', __name__, url_prefix='/api/worlds')
 
 @worlds.route('', methods=['GET'])
 @jwt_required
-@is_verified
+@is_alliance_member
 def ListWorlds():
     return jsonify([world.to_dict() for world in World.query.all()])
 
@@ -52,7 +52,7 @@ def CreateWorld():
 
 @worlds.route('/<id>', methods=['GET'])
 @jwt_required
-@is_verified
+@is_alliance_member
 def RetrieveWorld(id=0):
     return jsonify(World.query.get_or_404(id).to_dict())
 
@@ -80,7 +80,7 @@ def UpdateWorld(id=0):
 
 @worlds.route('/q', methods=['GET'])
 @jwt_required
-@is_verified
+@is_alliance_member
 def NameQuery():
     campaign_name = request.args.get('campaign')
     world_name = request.args.get('world')
