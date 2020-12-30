@@ -73,7 +73,7 @@ class PinTests(BasicTests):
         self.assertEqual(len(response.get_json()), 0)
 
     def test_delete_fail(self):
-        self.register('new', '1qaz!QAZ', self.DEFAULT_GUILD.id)
+        self.register('new', '1qaz!QAZ', self.DEFAULT_GUILD.id, True)
         data = json.dumps({'role': User.Role.VERIFIED.value, 'is_active': True, 'guild_id': self.DEFAULT_GUILD.id})
         self.request('/api/users/2', Method.PUT, {'Authorization': self.DEFAULT_TOKEN}, data)
         token = f'Bearer {self.login("new", "1qaz!QAZ").get_json()["token"]}'

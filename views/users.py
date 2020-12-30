@@ -1,6 +1,9 @@
 import re
 import os
 import traceback
+import requests
+import logging
+import sys
 
 from flask import Blueprint, jsonify, request, Response
 from flask_jwt_extended import create_access_token, create_refresh_token, decode_token, get_jwt_identity, jwt_required
@@ -12,9 +15,15 @@ from models import db, User
 from permissions import is_administrator, is_discord_bot, is_verified
 from logger import get_logger
 
+log = logging.getLogger('discord')
+log.setLevel(logging.INFO)
+handler = logging.StreamHandler(sys.stdout)
+log.addHandler(handler)
+
 users = Blueprint('users', __name__, url_prefix='/api/users')
 _SITE_TOKEN = os.getenv('SITE_TOKEN')
 _BASE_URL = os.getenv('FRONTEND_URL')
+BOT_URL = os.getenv('BOT_URL') + '/bot'
 VERIFY_SSL = bool(int(os.getenv('VERIFY_SSL')))
 log = get_logger(__name__)
 
@@ -42,6 +51,12 @@ def CreateUser():
             )
         db.session.add(newUser)
         db.session.commit()
+        log.info(json)
+        del json['password']
+        if json['currentMember'] is False:
+            json['SITE_TOKEN'] = _SITE_TOKEN
+            log.info(json)
+            requests.post(BOT_URL + "/application", json=json, verify=VERIFY_SSL)
         data = {}
         data['user'] = newUser.to_dict()
         data['token'] = create_access_token(identity=newUser.to_dict())

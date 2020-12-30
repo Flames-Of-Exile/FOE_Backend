@@ -87,8 +87,8 @@ class BasicTests(unittest.TestCase):
         data = json.dumps({'username': username, 'password': password})
         return self.request('/api/users/login', Method.POST, {}, data)
 
-    def register(self, username, password, guild_id):
-        data = json.dumps({'username': username, 'password': password, 'guild_id': guild_id})
+    def register(self, username, password, guild_id, currentMember):
+        data = json.dumps({'username': username, 'password': password, 'guild_id': guild_id, 'currentMember': currentMember})
         return self.request('/api/users', Method.POST, {}, data)
 
     def logout(self):
