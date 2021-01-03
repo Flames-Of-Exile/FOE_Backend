@@ -243,9 +243,11 @@ class Event(db.Model, SerializerMixin):
     game = db.Column(db.String(), nullable=False)
     date = db.Column(db.DateTime(), nullable=False)
     note = db.Column(db.String())
+    active = db.Column(db.Boolean)
 
-    def __init__(self, name, game, date, note=None):
+    def __init__(self, name, game, date, note=None, active=True):
         self.name = name
         self.game = game
         self.date = date
         self.note = note
+        self.active = active

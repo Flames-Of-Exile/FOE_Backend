@@ -1,12 +1,19 @@
 import functools
 
-from flask import request
+from flask import request, jsonify
 from flask_jwt_extended import decode_token
 from flask_socketio import disconnect, emit
 from jwt.exceptions import DecodeError
 
-from models import Campaign, User
+import datetime
+import pytz
+
+from models import Campaign, User, Event
 from app import socketio
+from logger import get_logger
+
+timezone = pytz.utc
+log = get_logger(__name__)
 
 
 def requires_authentication(function):
@@ -38,3 +45,12 @@ def handle_campaign_update():
     data = [campaign.to_dict() for campaign in Campaign.query.filter_by(is_archived=False)
                     .order_by(Campaign.is_default.desc(), Campaign.id.desc()).all()]
     emit('campaign-update', data, broadcast=True)
+
+@requires_authentication
+@socketio.on('calendar-update')
+def handle_calendar_update():
+    log.info('socket calendar-update')
+    events = Event.query.order_by(Event.active.desc()).order_by(Event.date).all()
+    for event in events:
+        event.date = timezone.localize(event.date)
+    return jsonify([event.to_dict() for event in events])
