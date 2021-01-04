@@ -109,3 +109,22 @@ def notify_events():
     data = jsonify(todays_events)
     data.status_code = 200
     return data
+
+@calendar.route('/allevents', methods=['GET'])
+@jwt_required
+@is_verified
+def get_events():
+    day = datetime.datetime.now()
+    log.info(day)
+    events = Event.query.filter_by(active=True).all()
+    upcoming_events = []
+    for event in events:
+        if event.date.date() < day.date():
+            event.active = False
+        else:
+            # event.date = pytz.utc(event.date)
+            upcoming_events.append(event.to_dict())
+    db.session.commit()
+    data = jsonify(upcoming_events)
+    data.status_code = 200
+    return data
