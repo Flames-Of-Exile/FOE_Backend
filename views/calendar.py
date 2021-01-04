@@ -46,6 +46,7 @@ def create_new_event():
         return Response('note not found', status=400)
     event = request.json
     log.info(event['date'])
+    log.info(type(event['date']))
     new_event = Event(event['name'], event['game'], event['date'], event['note'])
     db.session.add(new_event)
     db.session.commit()
@@ -94,16 +95,15 @@ def remove_event(id):
 @jwt_required
 @is_discord_bot
 def notify_events():
-    day = datetime.date.today()
+    day = datetime.datetime.now()
+    log.info(day)
     events = Event.query.filter_by(active=True).all()
     todays_events = []
     for event in events:
-        if event.date.date() < day:
+        if event.date.date() < day.date():
             event.active = False
-        elif event.date.date() < day + timedelta(hours=24):
-            log.info(event.date)
+        elif event.date < day + timedelta(hours=24):
             # event.date = pytz.utc(event.date)
-            log.info(event.date)
             todays_events.append(event.to_dict())
     db.session.commit()
     data = jsonify(todays_events)

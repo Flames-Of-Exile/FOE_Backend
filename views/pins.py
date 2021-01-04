@@ -93,7 +93,7 @@ def UpdatePin(id=0):
 
 @pins.route('/<id>', methods=['DELETE'])
 @jwt_required
-@is_verified
+@is_alliance_member
 def DeletePin(id=0):
     pin = Pin.query.get_or_404(id)
     creator_id = pin.edits[0].user_id
