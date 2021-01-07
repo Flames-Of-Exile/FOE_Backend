@@ -3,7 +3,7 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 from sqlalchemy.exc import IntegrityError
 
 from models import db, Edit, Pin, User
-from permissions import is_verified, is_alliance_member
+from permissions import is_alliance_member
 
 pins = Blueprint('pins', __name__, url_prefix='/api/pins')
 

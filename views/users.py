@@ -12,7 +12,7 @@ from sqlalchemy.exc import IntegrityError
 
 from discord_token import confirm_token, generate_confirmation_token
 from models import db, User
-from permissions import is_administrator, is_discord_bot, is_verified, is_guild_leader
+from permissions import is_discord_bot, is_verified, is_guild_leader
 from logger import get_logger
 
 log = logging.getLogger('discord')
@@ -124,7 +124,7 @@ def AdminUpdateUser(id=0):
     try:
         if admin.role not in [User.Role.ADMIN]:
             if admin.guild != user.guild:
-                return Response('must be in the guild you are atempting to edit', status=403)    
+                return Response('must be in the guild you are atempting to edit', status=403)
         json = request.json
         if ('password' in json.keys()):
             user.password = sha256_crypt.encrypt(json['password'])
@@ -132,7 +132,7 @@ def AdminUpdateUser(id=0):
         user.is_active = json['is_active']
         if User.Role(json['role']) == User.Role.ADMIN:
             if admin.role in [User.Role.ADMIN]:
-                    user.role = User.Role(json['role'])
+                user.role = User.Role(json['role'])
         else:
             user.role = User.Role(json['role']) or None
         db.session.commit()
@@ -232,6 +232,7 @@ def ResetPassword(discord_id=0):
     db.session.commit()
     return jsonify(user.to_dict())
 
+
 @users.route('/alliance/vouch', methods=['PATCH'])
 @jwt_required
 @is_discord_bot
@@ -249,6 +250,7 @@ def vouch_for_member():
         response.status_code = 200
         return response
     return jsonify('must be member of same guild to manage'), 403
+
 
 @users.route('/alliance/endvouch', methods=['PATCH'])
 @jwt_required

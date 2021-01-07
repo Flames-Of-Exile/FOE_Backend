@@ -235,6 +235,7 @@ class Guild(db.Model, SerializerMixin):
     def __repr__(self):
         return f'{self.id}: {self.name} - {self.is_active}'
 
+
 class Event(db.Model, SerializerMixin):
     __tablename__ = "event"
 

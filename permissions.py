@@ -50,6 +50,7 @@ def is_discord_bot(func, **kwargs):
         return func(*args, **kwargs)
     return wrapper
 
+
 def is_guild_leader(func, **kwargs):
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -61,6 +62,7 @@ def is_guild_leader(func, **kwargs):
             return Response('requires Guild leader account', status=403)
         return func(*args, **kwargs)
     return wrapper
+
 
 def is_alliance_member(func, **kwargs):
     @wraps(func)

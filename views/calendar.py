@@ -1,6 +1,5 @@
 from flask import Blueprint, jsonify, request, Response
 from flask_jwt_extended import jwt_required
-from sqlalchemy.exc import IntegrityError
 import logging
 import os
 import sys
@@ -22,6 +21,7 @@ timezone = pytz.utc
 
 calendar = Blueprint('calendar', __name__, url_prefix='/api/calendar')
 
+
 @calendar.route('', methods=['GET'])
 @jwt_required
 @is_verified
@@ -31,6 +31,7 @@ def get_all_events():
         event.date = timezone.localize(event.date)
         log.info(f'{event.name}:{event.date}')
     return jsonify([event.to_dict() for event in events])
+
 
 @calendar.route('', methods=['POST'])
 @jwt_required
@@ -53,11 +54,7 @@ def create_new_event():
     data = jsonify(new_event.to_dict())
     data.status_code = 201
     return data
-    # except IntegrityError as error:
-    #     return Response(error.args[0], status=400)
-    # except KeyError as error:
-    #     log.info(error)
-    #     return Response(error.args[0], status=418)
+
 
 @calendar.route('/<id>', methods=['PATCH'])
 @jwt_required
@@ -80,6 +77,7 @@ def alter_event(id):
     data.status_code = 201
     return data
 
+
 @calendar.route('/<id>', methods=['DELETE'])
 @jwt_required
 @is_administrator
@@ -90,6 +88,7 @@ def remove_event(id):
     data = jsonify(event.to_dict())
     data.status_code = 204
     return data
+
 
 @calendar.route('/getevents', methods=['GET'])
 @jwt_required
@@ -109,6 +108,7 @@ def notify_events():
     data = jsonify(todays_events)
     data.status_code = 200
     return data
+
 
 @calendar.route('/allevents', methods=['GET'])
 @jwt_required
