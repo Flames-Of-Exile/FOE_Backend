@@ -14,7 +14,7 @@ class CalendarTests(BasicTests):
         self.assertIn(self.DEFAULT_EVENT.to_dict(), data)
 
     def test_delete_event(self):
-        response = self.request('/api/calendar/1', Method.DELETE headers={'Authorization': self.DEFAULT_TOKEN})
+        response = self.request('/api/calendar/1', Method.DELETE, headers={'Authorization': self.DEFAULT_TOKEN})
         self.assertEqual(response.status_code, 204)
         self.assertEqual(response.get_json(), self.DEFAULT_EVENT.to_dict())
 
@@ -95,10 +95,13 @@ class CalendarTests(BasicTests):
                                 Method.PATCH,
                                 headers=headers,
                                 data=json.dumps(data))
-        date = date.split('.')[0][:-3].split('T')
-        date = date[0] + ' ' + data[1]
+        datea = datea.split('.')[0][:-3].split('T')
+        datea = datea[0] + ' ' + datea[1]
+        dateb = response.json['date']
+        dateb = dateb.split('.')[0][:-3].split('T')
+        dateb = dateb[0] + ' ' + dateb[1]
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.json['date'], date)
+        self.assertEqual(dateb, datea)
         
 
     def test_edit_note(self):
