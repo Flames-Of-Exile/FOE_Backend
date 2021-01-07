@@ -16,7 +16,6 @@ class CalendarTests(BasicTests):
     def test_delete_event(self):
         response = self.request('/api/calendar/1', Method.DELETE, headers={'Authorization': self.DEFAULT_TOKEN})
         self.assertEqual(response.status_code, 204)
-        self.assertEqual(response.get_json(), self.DEFAULT_EVENT.to_dict())
 
     def test_create_event_fail_game(self):
         data = json.dumps({
@@ -98,8 +97,6 @@ class CalendarTests(BasicTests):
         datea = date.split('.')[0][:-3].split('T')
         datea = datea[0] + ' ' + datea[1]
         dateb = response.json['date']
-        dateb = dateb.split('.')[0][:-3].split('T')
-        dateb = dateb[0] + ' ' + dateb[1]
         self.assertEqual(response.status_code, 201)
         self.assertEqual(dateb, datea)
         
