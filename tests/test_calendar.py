@@ -1,4 +1,5 @@
 import json
+from json import JSONEncoder
 from datetime import datetime
 from .setup import BasicTests, Method
 from models import Event
@@ -20,7 +21,7 @@ class CalendarTests(BasicTests):
     def test_create_event_fail_game(self):
         data = json.dumps({
             'name': 'name',
-            'date': datetime.now(),
+            'date': datetime.now().isoformat(),
             'note': 'note'
         })
         headers = {'Authorization': self.DEFAULT_TOKEN}
@@ -30,7 +31,7 @@ class CalendarTests(BasicTests):
     def test_create_event_fail_name(self):
         data = json.dumps({
             'game': 'game',
-            'date': datetime.now(),
+            'date': datetime.now().isoformat(),
             'note': 'note'
         })
         headers = {'Authorization': self.DEFAULT_TOKEN}
@@ -51,14 +52,14 @@ class CalendarTests(BasicTests):
         data = json.dumps({
             'name': 'name',
             'game': 'game',
-            'date': datetime.now(),
+            'date': datetime.now().isoformat(),
         })
         headers = {'Authorization': self.DEFAULT_TOKEN}
         response = self.request('/api/calendar', Method.POST, headers, data)
         self.assertEqual(response.status_code, 400)
 
     def test_create_event(self):
-        response = self.create_event('name', 'game', datetime.now(), 'note', self.DEFAULT_TOKEN)
+        response = self.create_event('name', 'game', datetime.now().isoformat(), 'note', self.DEFAULT_TOKEN)
         self.assertEqual(response.status_code, 201)
 
     def test_edit_name(self):
@@ -70,7 +71,7 @@ class CalendarTests(BasicTests):
                                 headers=headers,
                                 data=json.dumps(data))
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.json()['name'], 'edit')
+        self.assertEqual(response.json['name'], 'edit')
         
 
     def test_edit_game(self):
@@ -82,12 +83,12 @@ class CalendarTests(BasicTests):
                                 headers=headers,
                                 data=json.dumps(data))
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.json()['game'], 'edit')
+        self.assertEqual(response.json['game'], 'edit')
         
 
     def test_edit_date(self):
         data = self.DEFAULT_EVENT.to_dict()
-        date = datetime.now()
+        date = datetime.now().isoformat()
         data['date'] = date
         headers = {'Authorization': self.DEFAULT_TOKEN}
         response = self.request(f'/api/calendar/1',
@@ -95,7 +96,7 @@ class CalendarTests(BasicTests):
                                 headers=headers,
                                 data=json.dumps(data))
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.json()['date'], date)
+        self.assertEqual(response.json['date'], date)
         
 
     def test_edit_note(self):
@@ -107,5 +108,5 @@ class CalendarTests(BasicTests):
                                 headers=headers,
                                 data=json.dumps(data))
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.json()['note'], 'edit')
+        self.assertEqual(response.json['note'], 'edit')
         
