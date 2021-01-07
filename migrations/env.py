@@ -1,4 +1,3 @@
-# flake8: noqa
 from __future__ import with_statement
 
 import logging
@@ -22,7 +21,6 @@ logger = logging.getLogger('alembic.env')
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-from models import Campaign, Edit, Guild, Pin, User, World
 from flask import current_app
 config.set_main_option(
     'sqlalchemy.url', current_app.config.get(

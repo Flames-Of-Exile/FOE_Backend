@@ -9,6 +9,7 @@ import tests.test_pins
 import tests.test_socket
 import tests.test_users
 import tests.test_worlds
+import tests.test_calendar
 
 
 def main():
@@ -21,6 +22,7 @@ def main():
     suite.addTests(unittest.TestLoader().loadTestsFromModule(tests.test_socket))
     suite.addTests(unittest.TestLoader().loadTestsFromModule(tests.test_users))
     suite.addTests(unittest.TestLoader().loadTestsFromModule(tests.test_worlds))
+    suite.addTests(unittest.TestLoader().loadTestsFromModule(tests.test_calendar))
     unittest.TextTestRunner(verbosity=2).run(suite)
 
 

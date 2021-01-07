@@ -2,12 +2,13 @@ import enum
 import io
 import json
 import unittest
+import datetime
 
 from passlib.hash import sha256_crypt
 
 from app import create_app
 from config import test_config
-from models import db, Campaign, Edit, Guild, Pin, User, World
+from models import db, Campaign, Edit, Guild, Pin, User, World, Event
 
 
 class Method(enum.Enum):
@@ -57,12 +58,17 @@ class BasicTests(unittest.TestCase):
         db.session.add(edit)
         db.session.commit()
 
+        event = Event('event', 'game', datetime.datetime.now(), 'note')
+        db.session.add(event)
+        db.session.commit()
+
         self.DEFAULT_GUILD = guild
         self.DEFAULT_USER = admin
         self.DEFAULT_CAMPAIGN = campaign
         self.DEFAULT_WORLD = world
         self.DEFAULT_PIN = pin
         self.DEFAULT_TOKEN = f'Bearer {self.login("DiscordBot", "admin").get_json()["token"]}'
+        self.DEFAULT_EVENT = event
 
         self.maxDiff = None
 
@@ -129,3 +135,23 @@ class BasicTests(unittest.TestCase):
         data = json.dumps({'name': name})
         headers = {'Authorization': token}
         return self.request('/api/guilds', Method.POST, headers, data)
+
+    def create_event(self, name, game, date, note, token):
+        data = json.dumps({
+            'name': name,
+            'game': game,
+            'date': date,
+            'note': note
+        })
+        headers = {'Authorization': token}
+        return self.request('/api/calendar', Method.POST, headers, data)
+
+    def edit_event(self, id, name, game, date, note, token):
+        data = json.dumps({
+            'name': name,
+            'game': game,
+            'date': date,
+            'note': note
+        })
+        headers = {'Authorization': token}
+        return self.request(f'/api/calendar/{id}', Method.PATCH, headers, data)

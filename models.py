@@ -14,6 +14,8 @@ class User(db.Model, SerializerMixin):
         GUEST = 'guest'
         VERIFIED = 'verified'
         ADMIN = 'admin'
+        GUILD_LEADER = 'guild_leader'
+        ALLIANCE_MEMBER = 'alliance_member'
 
     class Theme(enum.Enum):
         DEFAULT = 'default'
@@ -232,3 +234,20 @@ class Guild(db.Model, SerializerMixin):
 
     def __repr__(self):
         return f'{self.id}: {self.name} - {self.is_active}'
+
+class Event(db.Model, SerializerMixin):
+    __tablename__ = "event"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(), nullable=False)
+    game = db.Column(db.String(), nullable=False)
+    date = db.Column(db.DateTime(), nullable=False)
+    note = db.Column(db.String())
+    active = db.Column(db.Boolean)
+
+    def __init__(self, name, game, date, note=None, active=True):
+        self.name = name
+        self.game = game
+        self.date = date
+        self.note = note
+        self.active = active

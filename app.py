@@ -22,11 +22,13 @@ def create_app(config):
     from views.pins import pins
     from views.users import users
     from views.worlds import worlds
+    from views.calendar import calendar
     app.register_blueprint(campaigns)
     app.register_blueprint(guilds)
     app.register_blueprint(pins)
     app.register_blueprint(users)
     app.register_blueprint(worlds)
+    app.register_blueprint(calendar)
 
     JWTManager(app)
     socketio.init_app(app, cors_allowed_origins=os.environ['FRONTEND_URL'])
