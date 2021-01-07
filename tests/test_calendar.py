@@ -95,7 +95,7 @@ class CalendarTests(BasicTests):
                                 Method.PATCH,
                                 headers=headers,
                                 data=json.dumps(data))
-        datea = datea.split('.')[0][:-3].split('T')
+        datea = date.split('.')[0][:-3].split('T')
         datea = datea[0] + ' ' + datea[1]
         dateb = response.json['date']
         dateb = dateb.split('.')[0][:-3].split('T')
