@@ -60,6 +60,7 @@ def NameQuery():
     name = request.args.get('name')
     return jsonify(Guild.query.filter_by(name=name).first_or_404().to_dict())
 
+
 @guilds.route('/burn', methods=['PATCH'])
 @jwt_required
 @is_discord_bot
@@ -69,6 +70,7 @@ def burn_guild():
     db.session.commit()
     users = [int(user.discord) for user in guild.users]
     return jsonify(users)
+
 
 @guilds.route('/unburn', methods=['PATCH'])
 @jwt_required

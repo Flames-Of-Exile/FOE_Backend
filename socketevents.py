@@ -5,7 +5,6 @@ from flask_jwt_extended import decode_token
 from flask_socketio import disconnect, emit
 from jwt.exceptions import DecodeError
 
-import datetime
 import pytz
 
 from models import Campaign, User, Event
@@ -45,6 +44,7 @@ def handle_campaign_update():
     data = [campaign.to_dict() for campaign in Campaign.query.filter_by(is_archived=False)
                     .order_by(Campaign.is_default.desc(), Campaign.id.desc()).all()]
     emit('campaign-update', data, broadcast=True)
+
 
 @requires_authentication
 @socketio.on('calendar-update')
