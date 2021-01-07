@@ -121,16 +121,20 @@ def AdminUpdateUser(id=0):
     if get_jwt_identity()['id'] == int(id):
         return Response('cannot update your own account', status=403)
     admin = User.query.get_or_404(get_jwt_identity()['id'])
-    if admin.role not in [User.Role.ADMIN]:
-        if admin.guild != user.guild:
-            return Response('must be in the guild you are atempting to edit', status=403)    
     try:
+        if admin.role not in [User.Role.ADMIN]:
+            if admin.guild != user.guild:
+                return Response('must be in the guild you are atempting to edit', status=403)    
         json = request.json
         if ('password' in json.keys()):
             user.password = sha256_crypt.encrypt(json['password'])
         user.guild_id = json['guild_id']
         user.is_active = json['is_active']
-        user.role = User.Role(json['role']) or None
+        if User.Role(json['role']) == User.Role.ADMIN:
+            if admin.role in [User.Role.ADMIN]:
+                    user.role = User.Role(json['role'])
+        else:
+            user.role = User.Role(json['role']) or None
         db.session.commit()
         return jsonify(user.to_dict())
     except IntegrityError as error:

@@ -58,7 +58,7 @@ class BasicTests(unittest.TestCase):
         db.session.add(edit)
         db.session.commit()
 
-        event = Event('event', 'game', datetime.datetime.now(), 'note')
+        event = Event('event', 'game', datetime.datetime.now().isoformat(), 'note')
         db.session.add(event)
         db.session.commit()
 
