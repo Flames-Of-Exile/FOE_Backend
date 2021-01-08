@@ -11,7 +11,7 @@ from passlib.hash import sha256_crypt
 from sqlalchemy.exc import IntegrityError
 
 from discord_token import confirm_token, generate_confirmation_token
-from models import db, User
+from models import db, User, Guild
 from permissions import is_discord_bot, is_verified, is_guild_leader
 from logger import get_logger
 
@@ -128,7 +128,11 @@ def AdminUpdateUser(id=0):
         json = request.json
         if ('password' in json.keys()):
             user.password = sha256_crypt.encrypt(json['password'])
-        user.guild_id = json['guild_id']
+        if user.guild_id != json['guild_id']:
+            user.guild_id = json['guild_id']
+            data = {'user': user.discord, 'guildTag': Guild.query.filter_by(id=json['guild_id']).first_or_404().nickname}
+            log.warning(data)
+            requests.post(BOT_URL + '/updateUser', json=data, verify=VERIFY_SSL)
         user.is_active = json['is_active']
         if User.Role(json['role']) == User.Role.ADMIN:
             if admin.role in [User.Role.ADMIN]:
@@ -244,9 +248,13 @@ def vouch_for_member():
     if diplo.guild_id == user.guild_id or diplo.role == User.Role.ADMIN:
         user.role = User.Role.ALLIANCE_MEMBER
         user.is_active = True
-        log.warning(user.role)
+        log.warning(user.guild.id)
         db.session.commit()
-        response = jsonify(user.to_dict())
+        guild = Guild.query.filter_by(id=user.guild_id).first_or_404()
+        guild_tag = guild.nickname
+        user_dict = user.to_dict()
+        user_dict['guild_tag'] = guild_tag
+        response = jsonify(user_dict)
         response.status_code = 200
         return response
     return jsonify('must be member of same guild to manage'), 403
