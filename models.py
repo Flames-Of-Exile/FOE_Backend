@@ -225,15 +225,17 @@ class Guild(db.Model, SerializerMixin):
     name = db.Column(db.String(), nullable=False, unique=True)
     is_active = db.Column(db.Boolean(), nullable=False)
     users = db.relationship('User', backref='guild', lazy=True)
+    nickname = db.Column(db.String())
 
     serialize_rules = ('-users.guild', '-users.email')
 
-    def __init__(self, name):
+    def __init__(self, name, nickname=None):
         self.name = name
         self.is_active = True
+        self.nickname = nickname
 
     def __repr__(self):
-        return f'{self.id}: {self.name} - {self.is_active}'
+        return f'{self.id}: {self.name} - {self.is_active} - {self.nickname}'
 
 
 class Event(db.Model, SerializerMixin):
