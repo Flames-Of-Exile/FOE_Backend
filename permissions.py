@@ -64,17 +64,17 @@ def is_guild_leader(func, **kwargs):
     return wrapper
 
 
-def is_alliance_member(func, **kwargs):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        user = User.query.get(get_jwt_identity()['id'])
-        response = is_active(user)
-        if response is not None:
-            return response
-        if user.role not in [User.Role.ALLIANCE_MEMBER, User.Role.GUILD_LEADER, User.Role.VERIFIED, User.Role.ADMIN]:
-            return Response('requires active verified account', status=403)
-        guild = Guild.query.first_or_404(id == user.guild)
-        if guild.name != 'Flames of Exile':
-            return Response('requires a Flames of Exile account', status=403)
-        return func(*args, **kwargs)
-    return wrapper
+# def is_alliance_member(func, **kwargs):
+#     @wraps(func)
+#     def wrapper(*args, **kwargs):
+#         user = User.query.get(get_jwt_identity()['id'])
+#         response = is_active(user)
+#         if response is not None:
+#             return response
+#         if user.role not in [User.Role.ALLIANCE_MEMBER, User.Role.GUILD_LEADER, User.Role.VERIFIED, User.Role.ADMIN]:
+#             return Response('requires active verified account', status=403)
+#         guild = Guild.query.first_or_404(id == user.guild)
+#         if guild.name != 'Flames of Exile':
+#             return Response('requires a Flames of Exile account', status=403)
+#         return func(*args, **kwargs)
+#     return wrapper
