@@ -1,21 +1,15 @@
 # pull official base image
-FROM python:3.8.0-alpine
+FROM python:3.8-slim-buster
 
 # set work directory
 WORKDIR /usr/src/app
 
-# install psycopg2 dependencies
-RUN apk update \
-    && apk add \
+# install operating dependencies
+RUN apt-get -y update \
+    && apt-get -y install \
     gcc \
-    musl-dev \
-    postgresql-dev \
-    python3-dev
-    
-#install operating dependencies
-RUN apk update \
-    && apk add --no-cache \
-    bash 
+    libpq-dev \
+    netcat
 
 # install python packages
 RUN pip install --upgrade pip \
