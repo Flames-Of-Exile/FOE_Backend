@@ -7,7 +7,7 @@ WORKDIR /usr/src/app
 # install operating dependencies
 RUN apt-get -y update \
     && apt-get -y install \
-    g++\
+    build-base\
     gcc \
     libpq-dev 
 
