@@ -35,7 +35,7 @@ class AuthTests(BasicTests):
         user = User('new', sha256_crypt.encrypt('1qaz!QAZ'), self.DEFAULT_GUILD.id, User.Role.GUEST)
         user.id = 2
 
-        response = self.register('new', '1qaz!QAZ', self.DEFAULT_GUILD.id)
+        response = self.register('new', '1qaz!QAZ', self.DEFAULT_GUILD.id, True)
         self.assertEqual(response.status_code, 201)
         user.guild = self.DEFAULT_GUILD
 
@@ -45,19 +45,19 @@ class AuthTests(BasicTests):
         self.assertIn('Set-Cookie', response.headers)
 
     def test_register_fail_unique_username(self):
-        response = self.register('DiscordBot', '1qaz!QAZ', self.DEFAULT_GUILD.id)
+        response = self.register('DiscordBot', '1qaz!QAZ', self.DEFAULT_GUILD.id, True)
         self.assertEqual(response.status_code, 400)
         self.assertIn(b'Key (username)=(DiscordBot) already exists.', response.data)
         self.assertNotIn('Set-Cookie', response.headers)
 
     def test_register_fail_empty_username(self):
-        response = self.register('', '1qaz!QAZ', self.DEFAULT_GUILD.id)
+        response = self.register('', '1qaz!QAZ', self.DEFAULT_GUILD.id, True)
         self.assertEqual(response.status_code, 400)
         self.assertIn(b'null value in column "username" violates not-null constraint', response.data)
         self.assertNotIn('Set-Cookie', response.headers)
 
     def test_register_fail_empty_password(self):
-        response = self.register('new', '', self.DEFAULT_GUILD.id)
+        response = self.register('new', '', self.DEFAULT_GUILD.id, True)
         self.assertEqual(response.status_code, 400)
         self.assertNotIn('Set-Cookie', response.headers)
 
@@ -66,7 +66,7 @@ class AuthTests(BasicTests):
         self.assertIn('refresh_token=;', response.headers['Set-Cookie'])
 
     def test_password_complexity_length_fail(self):
-        response = self.register('new', '1qaz!QA', self.DEFAULT_GUILD.id)
+        response = self.register('new', '1qaz!QA', self.DEFAULT_GUILD.id, True)
         self.assertEqual(response.status_code, 400)
 
         data = response.get_json()
@@ -75,7 +75,7 @@ class AuthTests(BasicTests):
         self.assertIn('length_error', marked_errors)
 
     def test_password_complexity_digit_fail(self):
-        response = self.register('new', 'qqaz!QAZ', self.DEFAULT_GUILD.id)
+        response = self.register('new', 'qqaz!QAZ', self.DEFAULT_GUILD.id, True)
         self.assertEqual(response.status_code, 400)
 
         data = response.get_json()
@@ -84,7 +84,7 @@ class AuthTests(BasicTests):
         self.assertIn('digit_error', marked_errors)
 
     def test_password_complexity_lowercase_fail(self):
-        response = self.register('new', '1QAZ!QAZ', self.DEFAULT_GUILD.id)
+        response = self.register('new', '1QAZ!QAZ', self.DEFAULT_GUILD.id, True)
         self.assertEqual(response.status_code, 400)
 
         data = response.get_json()
@@ -93,7 +93,7 @@ class AuthTests(BasicTests):
         self.assertIn('lowercase_error', marked_errors)
 
     def test_password_complexity_uppercase_fail(self):
-        response = self.register('new', '1qaz!qaz', self.DEFAULT_GUILD.id)
+        response = self.register('new', '1qaz!qaz', self.DEFAULT_GUILD.id, True)
         self.assertEqual(response.status_code, 400)
 
         data = response.get_json()
@@ -102,7 +102,7 @@ class AuthTests(BasicTests):
         self.assertIn('uppercase_error', marked_errors)
 
     def test_password_complexity_symbol_fail(self):
-        response = self.register('new', '1qaz1QAZ', self.DEFAULT_GUILD.id)
+        response = self.register('new', '1qaz1QAZ', self.DEFAULT_GUILD.id, True)
         self.assertEqual(response.status_code, 400)
 
         data = response.get_json()
@@ -111,7 +111,7 @@ class AuthTests(BasicTests):
         self.assertIn('symbol_error', marked_errors)
 
     def test_password_complexity_multi_fail(self):
-        response = self.register('new', '1qaz', self.DEFAULT_GUILD.id)
+        response = self.register('new', '1qaz', self.DEFAULT_GUILD.id, True)
         self.assertEqual(response.status_code, 400)
 
         data = response.get_json()

@@ -1,5 +1,9 @@
 import re
 import os
+import traceback
+import requests
+import logging
+import sys
 
 from flask import Blueprint, jsonify, request, Response
 from flask_jwt_extended import create_access_token, create_refresh_token, decode_token, get_jwt_identity, jwt_required
@@ -7,13 +11,21 @@ from passlib.hash import sha256_crypt
 from sqlalchemy.exc import IntegrityError
 
 from discord_token import confirm_token, generate_confirmation_token
-from models import db, User
-from permissions import is_administrator, is_discord_bot, is_verified
+from models import db, User, Guild
+from permissions import is_discord_bot, is_verified, is_guild_leader
+from logger import get_logger
+
+log = logging.getLogger('discord')
+log.setLevel(logging.INFO)
+handler = logging.StreamHandler(sys.stdout)
+log.addHandler(handler)
 
 users = Blueprint('users', __name__, url_prefix='/api/users')
 _SITE_TOKEN = os.getenv('SITE_TOKEN')
 _BASE_URL = os.getenv('FRONTEND_URL')
+BOT_URL = os.getenv('BOT_URL') + '/bot'
 VERIFY_SSL = bool(int(os.getenv('VERIFY_SSL')))
+log = get_logger(__name__)
 
 
 @users.route('', methods=['GET'])
@@ -39,6 +51,12 @@ def CreateUser():
             )
         db.session.add(newUser)
         db.session.commit()
+        log.info(json)
+        del json['password']
+        if json['currentMember'] is False:
+            json['SITE_TOKEN'] = _SITE_TOKEN
+            log.info(json)
+            requests.post(BOT_URL + "/application", json=json, verify=VERIFY_SSL)
         data = {}
         data['user'] = newUser.to_dict()
         data['token'] = create_access_token(identity=newUser.to_dict())
@@ -67,6 +85,7 @@ def Login():
         else:
             return Response('invalid username/password', status=400)
     except (IntegrityError, AttributeError):
+        log.warning(traceback.format_exc())
         return Response('invalid username/password', status=400)
 
 
@@ -96,18 +115,30 @@ def UpdateUser(id=0):
 
 @users.route('/<id>', methods=['PUT'])
 @jwt_required
-@is_administrator
+@is_guild_leader
 def AdminUpdateUser(id=0):
     user = User.query.get_or_404(id)
     if get_jwt_identity()['id'] == int(id):
         return Response('cannot update your own account', status=403)
+    admin = User.query.get_or_404(get_jwt_identity()['id'])
     try:
+        if admin.role not in [User.Role.ADMIN]:
+            if admin.guild != user.guild:
+                return Response('must be in the guild you are atempting to edit', status=403)
         json = request.json
         if ('password' in json.keys()):
             user.password = sha256_crypt.encrypt(json['password'])
-        user.guild_id = json['guild_id']
+        if user.guild_id != json['guild_id']:
+            user.guild_id = json['guild_id']
+            data = {'user': user.discord, 'guildTag': Guild.query.filter_by(id=json['guild_id']).first_or_404().nickname}
+            log.warning(data)
+            requests.post(BOT_URL + '/updateUser', json=data, verify=VERIFY_SSL)
         user.is_active = json['is_active']
-        user.role = User.Role(json['role']) or None
+        if User.Role(json['role']) == User.Role.ADMIN:
+            if admin.role in [User.Role.ADMIN]:
+                user.role = User.Role(json['role'])
+        else:
+            user.role = User.Role(json['role']) or None
         db.session.commit()
         return jsonify(user.to_dict())
     except IntegrityError as error:
@@ -204,6 +235,46 @@ def ResetPassword(discord_id=0):
     user.password = sha256_crypt.encrypt(json['password'])
     db.session.commit()
     return jsonify(user.to_dict())
+
+
+@users.route('/alliance/vouch', methods=['PATCH'])
+@jwt_required
+@is_discord_bot
+def vouch_for_member():
+    json = request.json
+    log.warning(type(json['diplo']))
+    diplo = User.query.filter_by(discord=str(json['diplo'])).first_or_404()
+    user = User.query.filter_by(discord=str(json['target_user'])).first_or_404()
+    if diplo.guild_id == user.guild_id or diplo.role == User.Role.ADMIN:
+        user.role = User.Role.ALLIANCE_MEMBER
+        user.is_active = True
+        log.warning(user.guild.id)
+        db.session.commit()
+        guild = Guild.query.filter_by(id=user.guild_id).first_or_404()
+        guild_tag = guild.nickname
+        user_dict = user.to_dict()
+        user_dict['guild_tag'] = guild_tag
+        response = jsonify(user_dict)
+        response.status_code = 200
+        return response
+    return jsonify('must be member of same guild to manage'), 403
+
+
+@users.route('/alliance/endvouch', methods=['PATCH'])
+@jwt_required
+@is_discord_bot
+def endvouch_for_member():
+    json = request.json
+    diplo = User.query.filter_by(discord=str(json['diplo'])).first_or_404()
+    user = User.query.filter_by(discord=str(json['target_user'])).first_or_404()
+    if diplo.guild_id == user.guild_id or diplo.role == User.Role.ADMIN:
+        user.is_active = False
+        user.role = User.Role.GUEST
+        db.session.commit()
+        response = jsonify(user.to_dict())
+        response.status_code = 200
+        return response
+    return jsonify('must be member of same guild to manage'), 403
 
 
 def PassComplexityCheck(password):

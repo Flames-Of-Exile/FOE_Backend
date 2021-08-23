@@ -59,6 +59,9 @@ def RetrievePin(id=0):
 @is_verified
 def UpdatePin(id=0):
     pin = Pin.query.get_or_404(id)
+    user = get_jwt_identity()
+    if (User.Role(user['role']) not in [User.Role.ADMIN, User.Role.VERIFIED]) and (user['id'] != pin.edits[0].user_id):
+        return Response('only the creator or an admin can edit a pin', status=403)
     try:
         json = request.json
         details = ''

@@ -30,10 +30,12 @@ jobs:
     
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python 3.8
+    - name: Set up Python 3.9
       uses: actions/setup-python@v2
       with:
-        python-version: 3.8
+        python-version: 3.9
+    - name: I shouldn't have to do this
+      run: apt-get -y update && apt-get -y install libc6
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -52,6 +54,7 @@ jobs:
         SECRET_KEY: .
         FRONTEND_URL: '*'
         VERIFY_SSL: 0
+        BOT_URL: '*'
       run: |
         mkdir -p /usr/src/app/mediafiles
         coverage run unit_test.py
